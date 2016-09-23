@@ -193,7 +193,7 @@ public class Main extends Application {
 		}
 	}
 
-	class EditingCell extends TableCell<Person, String> {
+	public class EditingCell extends TableCell<Person, String> {
 
 		private TextField textField;
 

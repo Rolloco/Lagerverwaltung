@@ -1,4 +1,4 @@
-package main;
+package css.test;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
