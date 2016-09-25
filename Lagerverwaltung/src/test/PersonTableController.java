@@ -1,5 +1,10 @@
 package test;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,6 +16,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableCell;
@@ -23,6 +29,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 /**
  * View-Controller for the person table.
@@ -36,16 +43,32 @@ public class PersonTableController {
 	@FXML
 	private TableView<Person> personTable;
 	@FXML
-	private TableColumn<Person, String> firstNameColumn;
+	private TableColumn<Person, String> barcodeColumn;
 	@FXML
-	private TableColumn<Person, String> lastNameColumn;
+	private TableColumn<Person, String> bezeichnungColumn;
+	@FXML
+	private TableColumn<Person, String> stueckzahlColumn;
+	@FXML
+	private TableColumn<Person, String> datumColumn;
+	@FXML
+	private TableColumn<Person, String> ablaufDatumColumn;
+	@FXML
+	private TableColumn<Person, String> preisColumn;
+	@FXML
+	private TableColumn<Person, String> kundennummerColumn;
 
 	@FXML
-	private TextField addVorname;
+	private TextField addBarcode;
 	@FXML
-	private TextField addNachname;
+	private TextField addBezeichnung;
 	@FXML
-	private Spinner addValue;
+	private Spinner addStueckzahl;
+	@FXML
+	private DatePicker addAblaufdatum;
+	@FXML
+	private TextField addPreis;
+	@FXML
+	private TextField addKundennummer;
 	@FXML
 	private Button myButton;
 
@@ -55,15 +78,7 @@ public class PersonTableController {
 	 * Just add some sample data in the constructor.
 	 */
 	public PersonTableController() {
-		masterData.add(new Person("Hans", "Muster"));
-		masterData.add(new Person("Ruth", "Mueller"));
-		masterData.add(new Person("Heinz", "Kurz"));
-		masterData.add(new Person("Cornelia", "Meier"));
-		masterData.add(new Person("Werner", "Meyer"));
-		masterData.add(new Person("Lydia", "Kunz"));
-		masterData.add(new Person("Anna", "Best"));
-		masterData.add(new Person("Stefan", "Meier"));
-		masterData.add(new Person("Martin", "Mueller"));
+		masterData.addAll(Schnittstelle.datenbankverbindungSelect());
 	}
 
 	/**
@@ -74,12 +89,118 @@ public class PersonTableController {
 	 */
 	@FXML
 	private void initialize() {
+		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+		String today = format.format(new Date());
+
 		// 0. Initialize the columns.
-		firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
-		lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+		barcodeColumn.setCellValueFactory(cellData -> cellData.getValue().barcodeProperty());
+		bezeichnungColumn.setCellValueFactory(cellData -> cellData.getValue().bezeichnungProperty());
+		stueckzahlColumn.setCellValueFactory(cellData -> cellData.getValue().stueckzahlProperty());
+		datumColumn.setCellValueFactory(cellData -> cellData.getValue().datumProperty());
+		ablaufDatumColumn.setCellValueFactory(cellData -> cellData.getValue().ablaufDatumProperty());
+		preisColumn.setCellValueFactory(cellData -> cellData.getValue().preisProperty());
+		kundennummerColumn.setCellValueFactory(cellData -> cellData.getValue().kundennummerProperty());
 
 		addEditability();
+		addFilterOpportunity();
+		addAblaufdatum.setConverter(converter);
 
+		myButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				masterData.add(new Person(addBarcode.getText(), //
+						addBezeichnung.getText(), //
+						addStueckzahl.getValue().toString(), //
+						today, //
+						String.valueOf((addAblaufdatum.getValue())), //
+						addPreis.getText(), //
+						addKundennummer.getText()));
+				addBarcode.clear();
+				addBezeichnung.clear();
+				addPreis.clear();
+				addKundennummer.clear();
+			}
+		});
+
+		addStueckzahl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000));
+		addStueckzahl.setEditable(true);
+
+		// GET SELECTED ROW
+		// Person person = personTable.getSelectionModel().getSelectedItem();
+		// if (person != null)
+		// System.out.print(person.getFirstName());
+	}
+
+	private void addEditability() {
+		// FOR FIRSTNAME
+		barcodeColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
+			}
+		});
+		barcodeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR LASTNAME
+		bezeichnungColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setBezeichnung(t.getNewValue());
+			}
+		});
+		bezeichnungColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR STUECKZAHL
+		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setStueckzahl(t.getNewValue());
+			}
+		});
+		stueckzahlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR DATUM
+		datumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDatum(t.getNewValue());
+			}
+		});
+		datumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR ABLAUFDATUM
+		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setAblaufDatum(t.getNewValue());
+			}
+		});
+		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR PREIS
+		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue());
+			}
+		});
+		preisColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		// FOR KUNDENNUMMER
+		kundennummerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Person, String> t) {
+				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setKundennummer(t.getNewValue());
+			}
+		});
+		kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+	}
+
+	private void addFilterOpportunity() {
 		// 1. Wrap the ObservableList in a FilteredList (initially display all
 		// data).
 		FilteredList<Person> filteredData = new FilteredList<>(masterData, p -> true);
@@ -96,9 +217,19 @@ public class PersonTableController {
 				// text.
 				String lowerCaseFilter = newValue.toLowerCase();
 
-				if (person.getFirstName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				if (person.getBarcode().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches first name.
-				} else if (person.getLastName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				} else if (person.getBezeichnung().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				} else if (person.getStueckzahl().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				} else if (person.getDatum().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				} else if (person.getAblaufDatum().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				} else if (person.getPreis().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				} else if (person.getKundennummer().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
 				}
 				return false; // Does not match.
@@ -114,42 +245,26 @@ public class PersonTableController {
 
 		// 5. Add sorted (and filtered) data to the table.
 		personTable.setItems(sortedData);
-
-		myButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				masterData.add(new Person(addVorname.getText(), addNachname.getText()));
-				addVorname.clear();
-				addNachname.clear();
-			}
-		});
-
-		addValue.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000));
-		addValue.setEditable(true);
-
-		// GET SELECTED ROW
-		// Person person = personTable.getSelectionModel().getSelectedItem();
-		// if (person != null)
-		// System.out.print(person.getFirstName());
 	}
 
-	private void addEditability() {
-		// FOR FIRSTNAME
-		firstNameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setFirstName(t.getNewValue());
-			}
-		});
-		firstNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
-		// FOR LASTNAME
-		lastNameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setLastName(t.getNewValue());
-			}
-		});
-		lastNameColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-	}
+	StringConverter converter = new StringConverter<LocalDate>() {
+        DateTimeFormatter dateFormatter = 
+            DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        @Override
+        public String toString(LocalDate date) {
+            if (date != null) {
+                return dateFormatter.format(date);
+            } else {
+                return "";
+            }
+        }
+        @Override
+        public LocalDate fromString(String string) {
+            if (string != null && !string.isEmpty()) {
+                return LocalDate.parse(string, dateFormatter);
+            } else {
+                return null;
+            }
+        }
+    };
 }

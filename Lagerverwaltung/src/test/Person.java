@@ -10,35 +10,106 @@ import javafx.beans.property.StringProperty;
  */
 public class Person {
 
-	private final StringProperty firstName;
-	private final StringProperty lastName;
+	private StringProperty barcode;
+	private StringProperty bezeichnung;
+	private StringProperty stueckzahl;
+	private StringProperty datum;
+	private StringProperty ablaufDatum;
+	private StringProperty preis;
+	private StringProperty kundennummer;
 
-	public Person(String firstName, String lastName) {
-		this.firstName = new SimpleStringProperty(firstName);
-		this.lastName = new SimpleStringProperty(lastName);
+	public Person(String barcode, String bezeichnung, String stueckzahl, String datum,
+			String ablaufDatum, String preis, String kundennummer) {
+		this.barcode = new SimpleStringProperty(barcode);
+		this.bezeichnung = new SimpleStringProperty(bezeichnung);
+		this.stueckzahl = new SimpleStringProperty(stueckzahl);
+		this.datum = new SimpleStringProperty(datum);
+		this.ablaufDatum = new SimpleStringProperty(ablaufDatum);
+		this.preis = new SimpleStringProperty(preis);
+		this.kundennummer = new SimpleStringProperty(kundennummer);
+	}
+
+	public String getBarcode() {
+		return barcode.get();
+	}
+
+	public void setBarcode(String barcode) {
+		this.barcode.set(barcode);
 	}
 	
-	public String getFirstName() {
-		return firstName.get();
+	public StringProperty barcodeProperty() {
+		return barcode;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName.set(firstName);
+	public void setBezeichnung(String bezeichnung) {
+		this.bezeichnung.set(bezeichnung);
 	}
 	
-	public StringProperty firstNameProperty() {
-		return firstName;
+	public StringProperty bezeichnungProperty() {
+		return bezeichnung;
 	}
 
-	public String getLastName() {
-		return lastName.get();
+	public String getBezeichnung() {
+		return bezeichnung.get();
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName.set(lastName);
+	public String getStueckzahl() {
+		return stueckzahl.get();
+	}
+
+	public String getDatum() {
+		return datum.get();
+	}
+
+	public String getAblaufDatum() {
+		return ablaufDatum.get();
+	}
+
+	public String getPreis() {
+		return preis.get();
+	}
+
+	public String getKundennummer() {
+		return kundennummer.get();
+	}
+
+	public void setStueckzahl(String stueckzahl) {
+		this.stueckzahl.set(stueckzahl);
 	}
 	
-	public StringProperty lastNameProperty() {
-		return lastName;
+	public void setDatum(String datum) {
+		this.datum.set(datum);
+	}
+	
+	public void setAblaufDatum(String ablaufDatum) {
+		this.ablaufDatum.set(ablaufDatum);
+	}
+	
+	public void setPreis(String preis) {
+		this.preis.set(preis);
+	}
+	
+	public void setKundennummer(String kundennummer) {
+		this.kundennummer.set(kundennummer);
+	}
+	
+	public StringProperty stueckzahlProperty() {
+		return stueckzahl;
+	}
+	
+	public StringProperty datumProperty() {
+		return datum;
+	}
+	
+	public StringProperty ablaufDatumProperty() {
+		return ablaufDatum;
+	}
+	
+	public StringProperty preisProperty() {
+		return preis;
+	}
+	
+	public StringProperty kundennummerProperty() {
+		return kundennummer;
 	}
 }
