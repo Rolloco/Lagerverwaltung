@@ -1,9 +1,13 @@
 package test;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -89,8 +93,6 @@ public class PersonTableController {
 	 */
 	@FXML
 	private void initialize() {
-		SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-		String today = format.format(new Date());
 
 		// 0. Initialize the columns.
 		barcodeColumn.setCellValueFactory(cellData -> cellData.getValue().barcodeProperty());
@@ -105,14 +107,21 @@ public class PersonTableController {
 		addFilterOpportunity();
 		addAblaufdatum.setConverter(converter);
 
+		
 		myButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
+				SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+				String today = format.format(new Date());
+				
+				Instant instant = addAblaufdatum.getValue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+				Date aDatum = Date.from(instant);
+
 				masterData.add(new Person(addBarcode.getText(), //
 						addBezeichnung.getText(), //
 						addStueckzahl.getValue().toString(), //
 						today, //
-						String.valueOf((addAblaufdatum.getValue())), //
+						format.format(aDatum),
 						addPreis.getText(), //
 						addKundennummer.getText()));
 				addBarcode.clear();

@@ -1,10 +1,13 @@
 package test;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class Schnittstelle {
@@ -39,12 +42,24 @@ public class Schnittstelle {
 				String bar = rs.getString("BARCODE");
 				String bez = rs.getString("BEZEICHNUNG");
 				String stueck = rs.getString("STUECKZAHL");
-				String datum = rs.getString("DATUM");
-				String aDatum = rs.getString("ABLAUFDATUM");
+				Date datum = rs.getDate("DATUM");
+				Date aDatum = rs.getDate("ABLAUFDATUM");
 				String preis = rs.getString("PREIS");
 				String kundennr = rs.getString("KUNDENNUMMER");
-				// Person person = new Person(pnr, aa, datum);
-				personen.add(new Person(bar, bez, stueck, datum, aDatum, preis, kundennr));
+				
+//				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+//				String date = null;
+//				String aDate = null;
+//				if (datum != null){
+//					formatter.format(datum);
+//					formatter.format(aDatum);
+//				}
+
+				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+				String date = formatter.format(datum);
+				String aDate = formatter.format(aDatum);
+				
+				personen.add(new Person(bar, bez, stueck, date, aDate, preis, kundennr));
 				// data.add(person);
 			}
 			return personen;
