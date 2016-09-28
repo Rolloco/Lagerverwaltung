@@ -23,7 +23,7 @@ public class Schnittstelle {
 	// Database credentials
 	static final String USER = "root";
 	static final String PASS = "Watt3r";
-	
+
 	static Validation validation = new Validation();
 
 	static ArrayList<Artikel> artikelen = new ArrayList<>();
@@ -109,16 +109,12 @@ public class Schnittstelle {
 			ps.setString(1, artikel.getKundennummer());
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
-				String lieferant = validation.showInfoLieferant(artikel);
-				if (lieferant.length() != 0) {
-					artikel.setLieferant(lieferant);
+				artikel = validation.showInfoLieferant(artikel);
 
-					ps = conn.prepareStatement("INSERT INTO LIEFERANT ( KUNDENNUMMER, NAME ) VALUES ( ?, ?)");
-					ps.setString(1, artikel.getKundennummer());
-					ps.setString(2, lieferant);
-					ps.executeUpdate();
-
-				}
+				ps = conn.prepareStatement("INSERT INTO LIEFERANT ( KUNDENNUMMER, NAME ) VALUES ( ?, ?)");
+				ps.setString(1, artikel.getKundennummer());
+				ps.setString(2, artikel.getLieferant());
+				ps.executeUpdate();
 			} else {
 				artikel.setLieferant(rs.getString("NAME"));
 			}
