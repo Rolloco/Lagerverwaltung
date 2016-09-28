@@ -32,10 +32,10 @@
   		<TextField fx:id="addBarcode" prefWidth="120.0"  promptText="Barcode"/>
   		<TextField fx:id="addBezeichnung" prefWidth="120.0"  promptText="Bezeichnung"/>
   		<Spinner fx:id="addStueckzahl" accessibleText="Stückzahl"/>
-  		<DatePicker fx:id="addAblaufdatum" prefWidth="120.0" promptText="Ablaufdatum"/>
+  		<DatePicker fx:id="addAblaufdatum" prefWidth="120.0" promptText="Ablaufdatum" />
   		<TextField fx:id="addPreis" prefWidth="120.0"  promptText="Preis"/>
   		<TextField fx:id="addKundennummer" prefWidth="120.0"  promptText="Kundennummer"/>
-    	<Button fx:id="myButton" mnemonicParsing="false" text="Add" />
+    	<Button fx:id="addToTable" mnemonicParsing="false" text="Add" />
   	</children>
   </HBox>
 </AnchorPane>

@@ -46,21 +46,12 @@ public class Schnittstelle {
 				Date aDatum = rs.getDate("ABLAUFDATUM");
 				String preis = rs.getString("PREIS");
 				String kundennr = rs.getString("KUNDENNUMMER");
-				
-//				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-//				String date = null;
-//				String aDate = null;
-//				if (datum != null){
-//					formatter.format(datum);
-//					formatter.format(aDatum);
-//				}
 
 				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 				String date = formatter.format(datum);
 				String aDate = formatter.format(aDatum);
-				
+
 				personen.add(new Person(bar, bez, stueck, date, aDate, preis, kundennr));
-				// data.add(person);
 			}
 			return personen;
 		} catch (SQLException se) {
@@ -70,123 +61,106 @@ public class Schnittstelle {
 			// Handle errors for Class.forName
 			e.printStackTrace();
 		} finally {
-			// finally block used to close resources
 			try {
 				if (stmt != null)
 					stmt.close();
 			} catch (SQLException se2) {
-			} // nothing we can do
+			}
 			try {
 				if (conn != null)
 					conn.close();
 			} catch (SQLException se) {
 				se.printStackTrace();
-			} // end finally try
-		} // end try
-		System.out.println("Goodbye!");
+			}
+		}
 		return null;
-	}// end main
+	}
+
+	public static void datenbankverbindungInsert(Person person) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		try {
+			// STEP 2: Register JDBC driver
+			Class.forName(JDBC_DRIVER);
+
+			// STEP 3: Open a connection
+			System.out.println("Connecting to database...");
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+			// STEP 4: Execute a query
+			System.out.println("Creating database...");
+			ps = conn.prepareStatement("INSERT INTO ARTIKEL ( BARCODE, BEZEICHNUNG, STUECKZAHL, DATUM, ABLAUFDATUM, PREIS, KUNDENNUMMER ) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
+			ps.setString(1, person.getBarcode());
+			ps.setString(2, person.getBezeichnung());
+			ps.setString(3, person.getStueckzahl());
+			ps.setString(4, person.getDatum());
+			ps.setString(5, person.getAblaufDatum());
+			ps.setString(6, person.getPreis());
+			ps.setString(7, person.getKundennummer());
+
+			ps.executeUpdate();
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+			} catch (SQLException se2) {
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+	}
+
+	public static void datenbankverbindungInsertOnEdit(Person person) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		try {
+			// STEP 2: Register JDBC driver
+			Class.forName(JDBC_DRIVER);
+
+			// STEP 3: Open a connection
+			System.out.println("Connecting to database...");
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+			// STEP 4: Execute a query
+			System.out.println("Creating database...");
+			ps = conn.prepareStatement("UPDATE ARTIKEL SET BARCODE = ?, BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?");
+			ps.setString(1, person.getBarcode());
+			ps.setString(2, person.getBezeichnung());
+			ps.setString(3, person.getStueckzahl());
+			ps.setString(4, person.getAblaufDatum());
+			ps.setString(5, person.getPreis());
+			ps.setString(6, person.getKundennummer());
+			ps.setString(7, person.getBarcode());
+
+			ps.executeUpdate();
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+			} catch (SQLException se2) {
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+	}
 }
-//
-// public static Person datenbankverbindungInsert(String pnr, String aa, String
-// datum) {
-// Connection conn = null;
-// PreparedStatement ps = null;
-// try {
-// // STEP 2: Register JDBC driver
-// Class.forName(JDBC_DRIVER);
-//
-// // STEP 3: Open a connection
-// System.out.println("Connecting to database...");
-// conn = DriverManager.getConnection(DB_URL, USER, PASS);
-//
-// // STEP 4: Execute a query
-// System.out.println("Creating database...");
-// ps = conn.prepareStatement("INSERT INTO CENTSPENDE ( PERSONALNUMMER,
-// ARBEITSANTEIL, DATUM ) VALUES ( ?, ? , ?)");
-// ps.setString(1, pnr);
-// ps.setString(2, aa);
-// ps.setString(3, datum);
-//
-// ps.executeQuery();
-// return new Person(pnr, aa, datum);
-// } catch (SQLException se) {
-// // Handle errors for JDBC
-// se.printStackTrace();
-// } catch (Exception e) {
-// // Handle errors for Class.forName
-// e.printStackTrace();
-// } finally {
-// // finally block used to close resources
-// try {
-// if (ps != null)
-// ps.close();
-// } catch (SQLException se2) {
-// }// nothing we can do
-// try {
-// if (conn != null)
-// conn.close();
-// } catch (SQLException se) {
-// se.printStackTrace();
-// }// end finally try
-// }// end try
-// System.out.println("Goodbye!");
-// return null;
-// }// end main
-//
-// public static ArrayList<Person> datenbankverbindungSearch(String filter,
-// String kategorie) {
-// Connection conn = null;
-// PreparedStatement ps = null;
-// try {
-// // STEP 2: Register JDBC driver
-// Class.forName(JDBC_DRIVER);
-//
-// // STEP 3: Open a connection
-// System.out.println("Connecting to database...");
-// conn = DriverManager.getConnection(DB_URL, USER, PASS);
-//
-// // STEP 4: Execute a query
-// System.out.println("Creating database...");
-// String sql = "SELECT * FROM CENTSPENDE WHERE ? LIKE ?'%'";
-// ps = conn.prepareStatement(sql);
-// ps.setString(1, kategorie);
-// ps.setString(2, filter);
-//
-// ResultSet rs = ps.executeQuery();
-// while (rs.next()) {
-// String pnr = rs.getString("PERSONALNUMMER");
-// String aa = rs.getString("ARBEITSANTEIL");
-// String datum = rs.getString("DATUM");
-// // Person person = new Person(pnr, aa, datum);
-// personen.add(new Person(pnr, aa, datum));
-// // data.add(person);
-// System.out.println("Personalnummer: " + pnr);
-// System.out.println("Arbeitsanteil: " + aa);
-// System.out.println("Datum: " + datum);
-// }
-// return personen;
-// } catch (SQLException se) {
-// // Handle errors for JDBC
-// se.printStackTrace();
-// } catch (Exception e) {
-// // Handle errors for Class.forName
-// e.printStackTrace();
-// } finally {
-// // finally block used to close resources
-// try {
-// if (ps != null)
-// ps.close();
-// } catch (SQLException se2) {
-// }// nothing we can do
-// try {
-// if (conn != null)
-// conn.close();
-// } catch (SQLException se) {
-// se.printStackTrace();
-// }// end finally try
-// }// end try
-// System.out.println("Goodbye!");
-// return null;
-// }// end main
-// }// end JDBCExample
