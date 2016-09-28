@@ -42,7 +42,7 @@ public class Validation {
 		alert.setContentText(error);
 
 		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-		stage.getIcons().add(new Image(this.getClass().getResource("alert.png").toString()));
+		stage.getIcons().add(new Image(this.getClass().getResource("icons/alert.png").toString()));
 
 		alert.showAndWait();
 
@@ -63,6 +63,9 @@ public class Validation {
 				" mit der Kundennumemr " + artikel.getKundennummer() + //
 				" existiert nicht!");
 		alert.setContentText("Möchten Sie Ihn anlegen?");
+		
+		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
@@ -71,7 +74,9 @@ public class Validation {
 			dialog.setHeaderText("Vervollständigung der Angbaben");
 			dialog.setContentText("Bitte geben Sie den Namen des Lieferanten ein:");
 
-			// Traditional way to get the response value.
+			stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+			stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
+			
 			return dialog.showAndWait();
 		}
 		throw new Exception("Der Lieferant " + artikel.getLieferant() + //

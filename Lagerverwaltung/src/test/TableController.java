@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -19,7 +20,9 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -27,11 +30,17 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import oracle.jdbc.AdditionalDatabaseMetaData;
@@ -159,10 +168,33 @@ public class TableController {
 		addStueckzahl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000));
 		addStueckzahl.setEditable(true);
 
-		// GET SELECTED ROW
-		// Person person = personTable.getSelectionModel().getSelectedItem();
-		// if (person != null)
-		// System.out.print(person.getFirstName());
+		//DELETE ROW ON DELETE BUTTON
+		personTable.setOnKeyPressed( new EventHandler<KeyEvent>()
+		{
+		  @Override
+		  public void handle( final KeyEvent keyEvent ) {
+		    final Artikel selectedItem = personTable.getSelectionModel().getSelectedItem();
+		    if ( selectedItem != null )
+		    {
+		      if (keyEvent.getCode().equals(KeyCode.DELETE))
+		      {
+		    	Alert alert = new Alert(AlertType.CONFIRMATION);
+		  		alert.setTitle("Confirmation Dialog");
+		  		alert.setHeaderText("Bitte um Bestätigung.");
+		  		alert.setContentText("Sind Sie sicher, dass Sie den ausgewählten Datensatz löschen möchten?");
+		  		
+		  		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		  		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
+
+		  		Optional<ButtonType> result = alert.showAndWait();
+		  		if (result.get() == ButtonType.OK) {
+		    	  schnittstelle.datenbankverbindungDelete(selectedItem);
+		    	  masterData.remove(selectedItem);
+		  		}
+		      }
+		    }
+		  }
+		} );
 	}
 
 	private void addEditability() {
@@ -170,9 +202,9 @@ public class TableController {
 		barcodeColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				schnittstelle.datenbankverbindungInsertOnEditPrimary(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()), t.getNewValue(), "BARCODE");
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
-						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		barcodeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -242,14 +274,27 @@ public class TableController {
 		kundennummerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				schnittstelle.datenbankverbindungInsertOnEditPrimary(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()), t.getNewValue(),
+						"KUNDENNUMMER");
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setKundennummer(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
-						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addKundennummer, 20);
+
+		// FOR KUNDENNUMMER
+		lieferantColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
+			@Override
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+						.setLieferant(t.getNewValue());
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
+			}
+		});
+		lieferantColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 	}
 
 	private void addFilterOpportunity() {
