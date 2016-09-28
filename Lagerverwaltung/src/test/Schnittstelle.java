@@ -23,6 +23,8 @@ public class Schnittstelle {
 	// Database credentials
 	static final String USER = "root";
 	static final String PASS = "Watt3r";
+	
+	static Validation validation = new Validation();
 
 	static ArrayList<Artikel> artikelen = new ArrayList<>();
 
@@ -40,8 +42,7 @@ public class Schnittstelle {
 			// STEP 4: Execute a query
 			System.out.println("Creating database...");
 			String sqlArtikel = "SELECT * FROM ARTIKEL";
-			
-			
+
 			stmt = conn.prepareStatement(sqlArtikel);
 
 			ResultSet rs = stmt.executeQuery();
@@ -60,7 +61,7 @@ public class Schnittstelle {
 
 				artikelen.add(new Artikel(bar, bez, stueck, date, aDate, preis, kundennr, ""));
 			}
-			for (int i = 0; i < artikelen.size(); i++){
+			for (int i = 0; i < artikelen.size(); i++) {
 				stmt = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");
 				stmt.setString(1, artikelen.get(i).getKundennummer());
 				rs = stmt.executeQuery();
@@ -108,21 +109,21 @@ public class Schnittstelle {
 			ps.setString(1, artikel.getKundennummer());
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
-				Validation validation = new Validation();
-				Optional<String> lieferant = validation.showInfoLieferant(artikel);
-				if (lieferant.get().length() != 0){
-					artikel.setLieferant(lieferant.get());
-					
+				String lieferant = validation.showInfoLieferant(artikel);
+				if (lieferant.length() != 0) {
+					artikel.setLieferant(lieferant);
+
 					ps = conn.prepareStatement("INSERT INTO LIEFERANT ( KUNDENNUMMER, NAME ) VALUES ( ?, ?)");
 					ps.setString(1, artikel.getKundennummer());
-					ps.setString(2, lieferant.get());
+					ps.setString(2, lieferant);
 					ps.executeUpdate();
-					
+
 				}
 			} else {
 				artikel.setLieferant(rs.getString("NAME"));
 			}
-			ps = conn.prepareStatement("INSERT INTO ARTIKEL ( BARCODE, BEZEICHNUNG, STUECKZAHL, DATUM, ABLAUFDATUM, PREIS, KUNDENNUMMER ) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
+			ps = conn.prepareStatement(
+					"INSERT INTO ARTIKEL ( BARCODE, BEZEICHNUNG, STUECKZAHL, DATUM, ABLAUFDATUM, PREIS, KUNDENNUMMER ) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
 			ps.setString(1, artikel.getBarcode());
 			ps.setString(2, artikel.getBezeichnung());
 			ps.setString(3, artikel.getStueckzahl());
@@ -130,7 +131,7 @@ public class Schnittstelle {
 			ps.setString(5, artikel.getAblaufDatum());
 			ps.setString(6, artikel.getPreis());
 			ps.setString(7, artikel.getKundennummer());
-			
+
 			ps.executeUpdate();
 			return artikel;
 		} catch (SQLException se) {
@@ -164,9 +165,8 @@ public class Schnittstelle {
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
-			ps = conn.prepareStatement("UPDATE ARTIKEL SET BARCODE = ?, BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?;");
-//					+ " UPDATE LIEFERANT NAME = ? WHERE KUNDENNUMMER = ?");
-			//FIRST UPDATE - ARTIKEL
+			ps = conn.prepareStatement(
+					"UPDATE ARTIKEL SET BARCODE = ?, BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?;");
 			ps.setString(1, artikel.getBarcode());
 			ps.setString(2, artikel.getBezeichnung());
 			ps.setString(3, artikel.getStueckzahl());
@@ -174,9 +174,6 @@ public class Schnittstelle {
 			ps.setString(5, artikel.getPreis());
 			ps.setString(6, artikel.getKundennummer());
 			ps.setString(7, artikel.getBarcode());
-			//SECOND UPDATE - LIEFERANT
-//			ps.setString(8, artikel.getLieferant());
-//			ps.setString(9, artikel.getKundennummer());
 
 			ps.executeUpdate();
 		} catch (SQLException se) {
@@ -199,7 +196,7 @@ public class Schnittstelle {
 			}
 		}
 	}
-	
+
 	public static void datenbankverbindungInsertOnEditPrimary(Artikel artikel, String neu, String attribut) {
 		Connection conn = null;
 		PreparedStatement ps = null;
@@ -216,14 +213,19 @@ public class Schnittstelle {
 				ps = conn.prepareStatement("UPDATE ARTIKEL SET BARCODE = ? WHERE BARCODE = ?");
 				ps.setString(1, neu);
 				ps.setString(2, artikel.getBarcode());
-			} else {
-				ps = conn.prepareStatement("UPDATE ARTIKEL SET KUNDENNUMMER = ? WHERE BARCODE = ?;"
-						+ "UPDATE LIEFERANT SET KUNDENNUMMER = ? WHERE KUNDENNUMMER = ?");
-				ps.setString(1, artikel.getKundennummer());
-				ps.setString(2, artikel.getBarcode());
-				ps.setString(3, neu);
-				ps.setString(4, artikel.getKundennummer());
 			}
+			// else {
+			// ps = conn.prepareStatement(
+			// "ALTER TABLE ARTIKEL DROP FOREIGN KEY KUNDENNUMMER;"
+			// + "UPDATE ARTIKEL SET KUNDENNUMMER = ? WHERE KUNDENNUMMER = ?;"
+			// + "UPDATE LIEFERANT SET KUNDENNUMMER = ? WHERE KUNDENNUMMER = ?;"
+			// + "ALTER TABLE ARTIKEL ADD CONSTRAINT KUNDENNUMMER FOREIGN KEY
+			// (KUNDENNUMMER) REFERENCES Lieferant(KUNDENNUMMER);");
+			// ps.setString(1, neu);
+			// ps.setString(2, artikel.getKundennummer());
+			// ps.setString(3, neu);
+			// ps.setString(4, artikel.getKundennummer());
+			// }
 
 			ps.executeUpdate();
 		} catch (SQLException se) {
@@ -246,14 +248,13 @@ public class Schnittstelle {
 			}
 		}
 	}
-	
+
 	public static void datenbankverbindungDelete(Artikel artikel) {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		try {
 			// STEP 2: Register JDBC driver
-				Class.forName(JDBC_DRIVER);
-			
+			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
 			System.out.println("Connecting to database...");
@@ -263,7 +264,7 @@ public class Schnittstelle {
 			ps = conn.prepareStatement("DELETE FROM ARTIKEL WHERE KUNDENNUMMER = ?");
 			ps.setString(1, artikel.getKundennummer());
 			ps.executeUpdate();
-			
+
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {

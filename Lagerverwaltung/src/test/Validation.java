@@ -32,6 +32,8 @@ public class Validation {
 			showError(errorTextBefore + "Kundennummer" + errorTextAfter);
 		} else if (person.getAblaufDatum().isEmpty()) {
 			showError(errorTextBefore + "Ablaufdatum" + errorTextAfter);
+		} else if (!person.getPreis().matches("([0-9]*[.,])?[0-9]+")) {
+			showError("Der Preis muss eine Zahl sein!");
 		}
 	}
 
@@ -52,35 +54,43 @@ public class Validation {
 	/**
 	 * Asks the user if he wants to add the described Supplier
 	 * 
-	 * @return 0 = OK
-	 * @return 1 = No
+	 * @return Name of the supplier
 	 * Initializes the table columns and sets up sorting and filtering.
 	 */
-	public Optional<String> showInfoLieferant(Artikel artikel) throws Exception {
+	public String showInfoLieferant(Artikel artikel) throws Exception {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Confirmation Dialog");
-		alert.setHeaderText("Der Lieferant " + artikel.getLieferant() + //
-				" mit der Kundennumemr " + artikel.getKundennummer() + //
-				" existiert nicht!");
-		alert.setContentText("Möchten Sie Ihn anlegen?");
+		alert.setTitle("Bestätigungsdialog");
+		alert.setHeaderText("Die Kundennummer " + artikel.getKundennummer() + //
+				" existiert nicht im Zusammenhang mit einem Lieferanten!");
+		alert.setContentText("Möchten Sie einen neuen Lieferanten anlegen?");
 		
 		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
-			TextInputDialog dialog = new TextInputDialog("GmBH");
-			dialog.setTitle("Text Input Dialog");
-			dialog.setHeaderText("Vervollständigung der Angbaben");
-			dialog.setContentText("Bitte geben Sie den Namen des Lieferanten ein:");
-
-			stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-			stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
-			
-			return dialog.showAndWait();
+			showLieferantEingabe(artikel);
 		}
 		throw new Exception("Der Lieferant " + artikel.getLieferant() + //
 				" mit der Kundennumemr " + artikel.getKundennummer() + //
 				" existiert nicht.");
+	}
+	
+	public String showLieferantEingabe(Artikel artikel) { 
+		TextInputDialog dialog = new TextInputDialog();
+		dialog.setTitle("Name des Lieferanten");
+		dialog.setHeaderText("Vervollständigung der Angbaben");
+		dialog.setContentText("Bitte geben Sie den Namen des Lieferanten ein:");
+
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
+		
+		String lieferant = dialog.showAndWait().get();
+		if (lieferant.length() > 0) {
+			return lieferant;
+		} else {
+			showLieferantEingabe(artikel);
+		}
+		return null;
 	}
 }

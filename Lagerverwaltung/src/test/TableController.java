@@ -271,30 +271,35 @@ public class TableController {
 		addTextLimiter(addPreis, 20);
 
 		// FOR KUNDENNUMMER
-		kundennummerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
-			@Override
-			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
-				schnittstelle.datenbankverbindungInsertOnEditPrimary(
-						t.getTableView().getItems().get(t.getTablePosition().getRow()), t.getNewValue(),
-						"KUNDENNUMMER");
-				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setKundennummer(t.getNewValue());
-			}
-		});
-		kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		// kundennummerColumn.setOnEditCommit(new
+		// EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
+		// @Override
+		// public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+		// schnittstelle.datenbankverbindungInsertOnEditPrimary(
+		// t.getTableView().getItems().get(t.getTablePosition().getRow()),
+		// t.getNewValue(),
+		// "KUNDENNUMMER");
+		// ((Artikel)
+		// t.getTableView().getItems().get(t.getTablePosition().getRow()))
+		// .setKundennummer(t.getNewValue());
+		// }
+		// });
+		// kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addKundennummer, 20);
 
 		// FOR KUNDENNUMMER
-		lieferantColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
-			@Override
-			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
-				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setLieferant(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
-						t.getTableView().getItems().get(t.getTablePosition().getRow()));
-			}
-		});
-		lieferantColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		// lieferantColumn.setOnEditCommit(new
+		// EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
+		// @Override
+		// public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+		// ((Artikel)
+		// t.getTableView().getItems().get(t.getTablePosition().getRow()))
+		// .setLieferant(t.getNewValue());
+		// schnittstelle.datenbankverbindungInsertOnEdit(
+		// t.getTableView().getItems().get(t.getTablePosition().getRow()));
+		// }
+		// });
+		// lieferantColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 	}
 
 	private void addFilterOpportunity() {
