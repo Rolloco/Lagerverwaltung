@@ -1,15 +1,23 @@
 package test;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -24,6 +32,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableCell;
@@ -168,33 +177,36 @@ public class TableController {
 		addStueckzahl.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000));
 		addStueckzahl.setEditable(true);
 
-		//DELETE ROW ON DELETE BUTTON
-		personTable.setOnKeyPressed( new EventHandler<KeyEvent>()
-		{
-		  @Override
-		  public void handle( final KeyEvent keyEvent ) {
-		    final Artikel selectedItem = personTable.getSelectionModel().getSelectedItem();
-		    if ( selectedItem != null )
-		    {
-		      if (keyEvent.getCode().equals(KeyCode.DELETE))
-		      {
-		    	Alert alert = new Alert(AlertType.CONFIRMATION);
-		  		alert.setTitle("Confirmation Dialog");
-		  		alert.setHeaderText("Bitte um Bestätigung.");
-		  		alert.setContentText("Sind Sie sicher, dass Sie den ausgewählten Datensatz löschen möchten?");
-		  		
-		  		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-		  		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
+		// DELETE ROW ON DELETE BUTTON
+		personTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(final KeyEvent keyEvent) {
+				final Artikel selectedItem = personTable.getSelectionModel().getSelectedItem();
+				if (selectedItem != null) {
+					if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+						int delete = validator.showDelete(selectedItem);
+						if (delete == 1) {
+							schnittstelle.datenbankverbindungDelete(selectedItem);
+							masterData.remove(selectedItem);
+						} else {
+							return;
+						}
+					}
+				}
+			}
+		});
 
-		  		Optional<ButtonType> result = alert.showAndWait();
-		  		if (result.get() == ButtonType.OK) {
-		    	  schnittstelle.datenbankverbindungDelete(selectedItem);
-		    	  masterData.remove(selectedItem);
-		  		}
-		      }
-		    }
-		  }
-		} );
+		Timer timer = new java.util.Timer();
+
+		timer.schedule(new TimerTask() {
+			public void run() {
+				Platform.runLater(new Runnable() {
+					public void run() {
+						validator.showExpired();
+					}
+				});
+			}
+		}, 100, 86400000); // Alle 24 Stunden poppt eine Erinnerung auf
 	}
 
 	private void addEditability() {
@@ -235,17 +247,6 @@ public class TableController {
 		});
 		stueckzahlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
-		// FOR DATUM
-		datumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
-			@Override
-			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
-				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDatum(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
-						t.getTableView().getItems().get(t.getTablePosition().getRow()));
-			}
-		});
-		datumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
-
 		// FOR ABLAUFDATUM
 		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
@@ -254,6 +255,7 @@ public class TableController {
 						.setAblaufDatum(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				validator.showExpired();
 			}
 		});
 		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -269,37 +271,7 @@ public class TableController {
 		});
 		preisColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addPreis, 20);
-
-		// FOR KUNDENNUMMER
-		// kundennummerColumn.setOnEditCommit(new
-		// EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
-		// @Override
-		// public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
-		// schnittstelle.datenbankverbindungInsertOnEditPrimary(
-		// t.getTableView().getItems().get(t.getTablePosition().getRow()),
-		// t.getNewValue(),
-		// "KUNDENNUMMER");
-		// ((Artikel)
-		// t.getTableView().getItems().get(t.getTablePosition().getRow()))
-		// .setKundennummer(t.getNewValue());
-		// }
-		// });
-		// kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addKundennummer, 20);
-
-		// FOR KUNDENNUMMER
-		// lieferantColumn.setOnEditCommit(new
-		// EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
-		// @Override
-		// public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
-		// ((Artikel)
-		// t.getTableView().getItems().get(t.getTablePosition().getRow()))
-		// .setLieferant(t.getNewValue());
-		// schnittstelle.datenbankverbindungInsertOnEdit(
-		// t.getTableView().getItems().get(t.getTablePosition().getRow()));
-		// }
-		// });
-		// lieferantColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 	}
 
 	private void addFilterOpportunity() {

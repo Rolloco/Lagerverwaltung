@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -153,6 +154,11 @@ public class Schnittstelle {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		try {
+			DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+			java.util.Date date = formatter.parse(artikel.getAblaufDatum());
+			formatter = new SimpleDateFormat("yyyy.MM.dd");
+			String datum = formatter.format(date);
+			
 			// STEP 2: Register JDBC driver
 			Class.forName(JDBC_DRIVER);
 
@@ -162,14 +168,13 @@ public class Schnittstelle {
 
 			// STEP 4: Execute a query
 			ps = conn.prepareStatement(
-					"UPDATE ARTIKEL SET BARCODE = ?, BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?;");
-			ps.setString(1, artikel.getBarcode());
-			ps.setString(2, artikel.getBezeichnung());
-			ps.setString(3, artikel.getStueckzahl());
-			ps.setString(4, artikel.getAblaufDatum());
-			ps.setString(5, artikel.getPreis());
-			ps.setString(6, artikel.getKundennummer());
-			ps.setString(7, artikel.getBarcode());
+					"UPDATE ARTIKEL SET BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?");
+			ps.setString(1, artikel.getBezeichnung());
+			ps.setString(2, artikel.getStueckzahl());
+			ps.setString(3, datum);
+			ps.setString(4, artikel.getPreis());
+			ps.setString(5, artikel.getKundennummer());
+			ps.setString(6, artikel.getBarcode());
 
 			ps.executeUpdate();
 		} catch (SQLException se) {
@@ -278,5 +283,63 @@ public class Schnittstelle {
 				se.printStackTrace();
 			}
 		}
+	}
+
+	public static ArrayList<Artikel> datenbankverbindungSelectExpired() {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try {
+			ArrayList<Artikel> expired = new ArrayList<Artikel>();
+			
+			// STEP 2: Register JDBC driver
+			Class.forName(JDBC_DRIVER);
+
+			// STEP 3: Open a connection
+			System.out.println("Connecting to database...");
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+			// STEP 4: Execute a query
+			System.out.println("Creating database...");
+			String sqlArtikel = "SELECT * FROM artikel WHERE ABLAUFDATUM > NOW() && ABLAUFDATUM < DATE_SUB(NOW(), INTERVAL -10 DAY)";
+			stmt = conn.prepareStatement(sqlArtikel);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				String bar = rs.getString("BARCODE");
+				String bez = rs.getString("BEZEICHNUNG");
+				String kundennr = rs.getString("KUNDENNUMMER");
+
+
+				expired.add(new Artikel(bar, bez, "", "", "", "", kundennr, ""));
+			}
+			for (int i = 0; i < expired.size(); i++) {
+				stmt = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");
+				stmt.setString(1, artikelen.get(i).getKundennummer());
+				rs = stmt.executeQuery();
+				if (rs.next()) {
+					expired.get(i).setLieferant(rs.getString("NAME"));
+				}
+			}
+			return expired;
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		return null;
 	}
 }

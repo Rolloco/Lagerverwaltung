@@ -1,5 +1,10 @@
 package test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import javafx.scene.control.Alert;
@@ -11,6 +16,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,6 +27,8 @@ public class Validation {
 
 	private static String errorTextBefore;
 	private static String errorTextAfter;
+	
+	private static Schnittstelle schnittstelle;
 
 	public Validation() {
 	}
@@ -88,6 +96,10 @@ public class Validation {
 		dialog.setHeaderText("Vervollständigung der Angbaben");
 		dialog.setContentText("Bitte geben Sie die Angaben des Lieferanten ein:");
 		
+		Image image = new Image(this.getClass().getResource("icons/information_window.png").toString());
+        ImageView imageView = new ImageView(image);
+		dialog.setGraphic(imageView);
+		
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
@@ -129,5 +141,44 @@ public class Validation {
 			showLieferantEingabe(artikel);
 		}
 		return artikel;
+	}
+	
+	public int showDelete(Artikel artikel) { 
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation Dialog");
+		alert.setHeaderText("Bitte um Bestätigung.");
+		alert.setContentText("Sind Sie sicher, dass Sie den ausgewählten Datensatz löschen möchten?");
+
+		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		stage.getIcons()
+				.add(new Image(this.getClass().getResource("icons/information.png").toString()));
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK) {
+			return 1;
+		}
+		return 0;
+	}
+
+	public void showExpired(){
+		ArrayList<Artikel> expired = schnittstelle.datenbankverbindungSelectExpired();
+		if (expired.size() > 0) {
+			for (int i = 0; i < expired.size(); i++) {
+				Artikel artikel = expired.get(i);
+
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error Dialog");
+				alert.setHeaderText("Eine Ware ist nur noch 10 Tage vom Ablaufdatum entfernt!");
+				alert.setContentText("Die Ware " + artikel.getBezeichnung() + " mit dem Barcode "
+						+ artikel.getBarcode() + " von dem Lieferanten " + artikel.getLieferant()
+						+ " ist kurz vor dem Ablaufdatum!");
+
+				Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+				stage.getIcons()
+						.add(new Image(this.getClass().getResource("icons/alert.png").toString()));
+
+				alert.showAndWait();
+			}
+		}
 	}
 }
