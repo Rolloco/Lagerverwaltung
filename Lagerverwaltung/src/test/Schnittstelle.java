@@ -9,6 +9,11 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Optional;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class Schnittstelle {
 	// JDBC driver name and database URL
@@ -19,9 +24,9 @@ public class Schnittstelle {
 	static final String USER = "root";
 	static final String PASS = "Watt3r";
 
-	static ArrayList<Person> personen = new ArrayList<>();
+	static ArrayList<Artikel> personen = new ArrayList<>();
 
-	public static ArrayList<Person> datenbankverbindungSelect() {
+	public static ArrayList<Artikel> datenbankverbindungSelect() {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		try {
@@ -34,8 +39,10 @@ public class Schnittstelle {
 
 			// STEP 4: Execute a query
 			System.out.println("Creating database...");
-			String sql = "SELECT * FROM ARTIKEL";
-			stmt = conn.prepareStatement(sql);
+			String sqlArtikel = "SELECT * FROM ARTIKEL";
+			
+			
+			stmt = conn.prepareStatement(sqlArtikel);
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -51,7 +58,15 @@ public class Schnittstelle {
 				String date = formatter.format(datum);
 				String aDate = formatter.format(aDatum);
 
-				personen.add(new Person(bar, bez, stueck, date, aDate, preis, kundennr));
+				personen.add(new Artikel(bar, bez, stueck, date, aDate, preis, kundennr, ""));
+			}
+			for (int i = 0; i < personen.size(); i++){
+				stmt = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");
+				stmt.setString(1, personen.get(i).getKundennummer());
+				rs = stmt.executeQuery();
+				if (rs.next()) {
+					personen.get(i).setLieferant(rs.getString("NAME"));
+				}
 			}
 			return personen;
 		} catch (SQLException se) {
@@ -76,7 +91,7 @@ public class Schnittstelle {
 		return null;
 	}
 
-	public static void datenbankverbindungInsert(Person person) {
+	public static Artikel datenbankverbindungInsert(Artikel person) throws Exception {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		try {
@@ -89,6 +104,24 @@ public class Schnittstelle {
 
 			// STEP 4: Execute a query
 			System.out.println("Creating database...");
+			ps = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");
+			ps.setString(1, person.getKundennummer());
+			ResultSet rs = ps.executeQuery();
+			if (!rs.next()) {
+				Validation validation = new Validation();
+				Optional<String> lieferant = validation.showInfoLieferant(person);
+				if (lieferant.get().length() != 0){
+					person.setLieferant(lieferant.get());
+					
+					ps = conn.prepareStatement("INSERT INTO LIEFERANT ( KUNDENNUMMER, NAME ) VALUES ( ?, ?)");
+					ps.setString(1, person.getKundennummer());
+					ps.setString(2, lieferant.get());
+					ps.executeUpdate();
+					
+				}
+			} else {
+				person.setLieferant(rs.getString("NAME"));
+			}
 			ps = conn.prepareStatement("INSERT INTO ARTIKEL ( BARCODE, BEZEICHNUNG, STUECKZAHL, DATUM, ABLAUFDATUM, PREIS, KUNDENNUMMER ) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
 			ps.setString(1, person.getBarcode());
 			ps.setString(2, person.getBezeichnung());
@@ -97,14 +130,12 @@ public class Schnittstelle {
 			ps.setString(5, person.getAblaufDatum());
 			ps.setString(6, person.getPreis());
 			ps.setString(7, person.getKundennummer());
-
+			
 			ps.executeUpdate();
+			return person;
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
 		} finally {
 			try {
 				if (ps != null)
@@ -118,9 +149,10 @@ public class Schnittstelle {
 				se.printStackTrace();
 			}
 		}
+		return person;
 	}
 
-	public static void datenbankverbindungInsertOnEdit(Person person) {
+	public static void datenbankverbindungInsertOnEdit(Artikel person) {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		try {

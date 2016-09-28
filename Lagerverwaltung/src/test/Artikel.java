@@ -8,7 +8,7 @@ import javafx.beans.property.StringProperty;
  * 
  * @author Marco Jakob
  */
-public class Person {
+public class Artikel {
 
 	private StringProperty barcode;
 	private StringProperty bezeichnung;
@@ -17,9 +17,10 @@ public class Person {
 	private StringProperty ablaufDatum;
 	private StringProperty preis;
 	private StringProperty kundennummer;
+	private StringProperty lieferant;
 
-	public Person(String barcode, String bezeichnung, String stueckzahl, String datum,
-			String ablaufDatum, String preis, String kundennummer) {
+	public Artikel(String barcode, String bezeichnung, String stueckzahl, String datum,
+			String ablaufDatum, String preis, String kundennummer, String lieferant) {
 		this.barcode = new SimpleStringProperty(barcode);
 		this.bezeichnung = new SimpleStringProperty(bezeichnung);
 		this.stueckzahl = new SimpleStringProperty(stueckzahl);
@@ -27,6 +28,7 @@ public class Person {
 		this.ablaufDatum = new SimpleStringProperty(ablaufDatum);
 		this.preis = new SimpleStringProperty(preis);
 		this.kundennummer = new SimpleStringProperty(kundennummer);
+		this.lieferant = new SimpleStringProperty(lieferant);
 	}
 
 	public String getBarcode() {
@@ -111,5 +113,17 @@ public class Person {
 	
 	public StringProperty kundennummerProperty() {
 		return kundennummer;
+	}
+	
+	public String getLieferant() {
+		return lieferant.get();
+	}
+
+	public void setLieferant(String lieferant) {
+		this.lieferant.set(lieferant);
+	}
+	
+	public StringProperty lieferantProperty() {
+		return lieferant;
 	}
 }

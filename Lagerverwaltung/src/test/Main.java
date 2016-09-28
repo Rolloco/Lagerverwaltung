@@ -30,7 +30,7 @@ public class Main extends Application {
 		label.setFont(new Font("Arial", 20));
 		
         try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("PersonTable.fxml"));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("Table.fxml"));
             AnchorPane page = (AnchorPane) loader.load();
             
             hb.getChildren().addAll(page);

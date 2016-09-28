@@ -41,26 +41,28 @@ import oracle.jdbc.AdditionalDatabaseMetaData;
  * 
  * @author Collin Kempkes
  */
-public class PersonTableController {
+public class TableController {
 
 	@FXML
 	private TextField filterField;
 	@FXML
-	private TableView<Person> personTable;
+	private TableView<Artikel> personTable;
 	@FXML
-	private TableColumn<Person, String> barcodeColumn;
+	private TableColumn<Artikel, String> barcodeColumn;
 	@FXML
-	private TableColumn<Person, String> bezeichnungColumn;
+	private TableColumn<Artikel, String> bezeichnungColumn;
 	@FXML
-	private TableColumn<Person, String> stueckzahlColumn;
+	private TableColumn<Artikel, String> stueckzahlColumn;
 	@FXML
-	private TableColumn<Person, String> datumColumn;
+	private TableColumn<Artikel, String> datumColumn;
 	@FXML
-	private TableColumn<Person, String> ablaufDatumColumn;
+	private TableColumn<Artikel, String> ablaufDatumColumn;
 	@FXML
-	private TableColumn<Person, String> preisColumn;
+	private TableColumn<Artikel, String> preisColumn;
 	@FXML
-	private TableColumn<Person, String> kundennummerColumn;
+	private TableColumn<Artikel, String> kundennummerColumn;
+	@FXML
+	private TableColumn<Artikel, String> lieferantColumn;
 
 	@FXML
 	private TextField addBarcode;
@@ -77,14 +79,16 @@ public class PersonTableController {
 	@FXML
 	private Button addToTable;
 
-	private ObservableList<Person> masterData = FXCollections.observableArrayList();
-	
+	private ObservableList<Artikel> masterData = FXCollections.observableArrayList();
+
 	private Schnittstelle schnittstelle;
+
+	private Validation validator = new Validation();
 
 	/**
 	 * Just add some sample data in the constructor.
 	 */
-	public PersonTableController() {
+	public TableController() {
 		masterData.addAll(schnittstelle.datenbankverbindungSelect());
 	}
 
@@ -105,38 +109,46 @@ public class PersonTableController {
 		ablaufDatumColumn.setCellValueFactory(cellData -> cellData.getValue().ablaufDatumProperty());
 		preisColumn.setCellValueFactory(cellData -> cellData.getValue().preisProperty());
 		kundennummerColumn.setCellValueFactory(cellData -> cellData.getValue().kundennummerProperty());
+		lieferantColumn.setCellValueFactory(cellData -> cellData.getValue().lieferantProperty());
 
 		addEditability();
 		addFilterOpportunity();
-		
+
 		addToTable.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				if (addAblaufdatum.getValue()== null)
+				if (addAblaufdatum.getValue() == null)
 					addAblaufdatum.setValue(LocalDate.now());
-				
+
 				SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 				String today = format.format(new Date());
 				Instant instant = addAblaufdatum.getValue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 				Date aDatum = Date.from(instant);
-				
-				Person person = new Person(addBarcode.getText(), //
+
+				Artikel person = new Artikel(addBarcode.getText(), //
 						addBezeichnung.getText(), //
 						addStueckzahl.getValue().toString(), //
 						today, //
-						format.format(aDatum),
-						addPreis.getText(), //
-						addKundennummer.getText());
-				
+						format.format(aDatum), addPreis.getText(), //
+						addKundennummer.getText(), //
+						"");
+
 				try {
-					Validation.validate(person);
+					validator.validate(person);
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					System.out.println(e1.getMessage());
+					// e1.printStackTrace();
 					return;
 				}
-				
+
+				try {
+					person = schnittstelle.datenbankverbindungInsert(person);
+				} catch (Exception e2) {
+					System.out.println(e2.getMessage());
+					// e2.printStackTrace();
+					return;
+				}
 				masterData.add(person);
-				schnittstelle.datenbankverbindungInsert(person);
 				addBarcode.clear();
 				addBezeichnung.clear();
 				addPreis.clear();
@@ -155,78 +167,85 @@ public class PersonTableController {
 
 	private void addEditability() {
 		// FOR BARCODE
-		barcodeColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		barcodeColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		barcodeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addBarcode, 20);
 
 		// FOR BEZEICHNUNG
-		bezeichnungColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		bezeichnungColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setBezeichnung(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		bezeichnungColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addBezeichnung, 20);
 
 		// FOR STUECKZAHL
-		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setStueckzahl(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		stueckzahlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 		// FOR DATUM
-		datumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		datumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDatum(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setDatum(t.getNewValue());
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		datumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 		// FOR ABLAUFDATUM
-		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setAblaufDatum(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 		// FOR PREIS
-		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue());
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		preisColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 		addTextLimiter(addPreis, 20);
 
 		// FOR KUNDENNUMMER
-		kundennummerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Person, String>>() {
+		kundennummerColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setKundennummer(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				schnittstelle.datenbankverbindungInsertOnEdit(
+						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		kundennummerColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -236,7 +255,7 @@ public class PersonTableController {
 	private void addFilterOpportunity() {
 		// 1. Wrap the ObservableList in a FilteredList (initially display all
 		// data).
-		FilteredList<Person> filteredData = new FilteredList<>(masterData, p -> true);
+		FilteredList<Artikel> filteredData = new FilteredList<>(masterData, p -> true);
 
 		// 2. Set the filter Predicate whenever the filter changes.
 		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -264,13 +283,15 @@ public class PersonTableController {
 					return true; // Filter matches last name.
 				} else if (person.getKundennummer().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
+				} else if (person.getLieferant().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
 				}
 				return false; // Does not match.
 			});
 		});
 
 		// 3. Wrap the FilteredList in a SortedList.
-		SortedList<Person> sortedData = new SortedList<>(filteredData);
+		SortedList<Artikel> sortedData = new SortedList<>(filteredData);
 
 		// 4. Bind the SortedList comparator to the TableView comparator.
 		// Otherwise, sorting the TableView would have no effect.
@@ -283,7 +304,8 @@ public class PersonTableController {
 	public static void addTextLimiter(final TextField tf, final int maxLength) {
 		tf.textProperty().addListener(new ChangeListener<String>() {
 			@Override
-			public void changed(final ObservableValue<? extends String> ov, final String oldValue, final String newValue) {
+			public void changed(final ObservableValue<? extends String> ov, final String oldValue,
+					final String newValue) {
 				if (tf.getText().length() > maxLength) {
 					String s = tf.getText().substring(0, maxLength);
 					tf.setText(s);
