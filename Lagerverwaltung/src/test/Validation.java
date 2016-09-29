@@ -27,7 +27,7 @@ public class Validation {
 
 	private static String errorTextBefore;
 	private static String errorTextAfter;
-	
+
 	private static Schnittstelle schnittstelle;
 
 	public Validation() {
@@ -68,8 +68,8 @@ public class Validation {
 	/**
 	 * Asks the user if he wants to add the described Supplier
 	 * 
-	 * @return Name of the supplier
-	 * Initializes the table columns and sets up sorting and filtering.
+	 * @return Name of the supplier Initializes the table columns and sets up
+	 *         sorting and filtering.
 	 */
 	public Artikel showInfoLieferant(Artikel artikel) throws Exception {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -77,7 +77,7 @@ public class Validation {
 		alert.setHeaderText("Die Kundennummer " + artikel.getKundennummer() + //
 				" existiert nicht im Zusammenhang mit einem Lieferanten!");
 		alert.setContentText("Möchten Sie einen neuen Lieferanten anlegen?");
-		
+
 		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
@@ -89,17 +89,17 @@ public class Validation {
 				" mit der Kundennumemr " + artikel.getKundennummer() + //
 				" existiert nicht.");
 	}
-	
-	public Artikel showLieferantEingabe(Artikel artikel) { 
+
+	public Artikel showLieferantEingabe(Artikel artikel) {
 		Dialog<Artikel> dialog = new Dialog<>();
 		dialog.setTitle("Neuer Lieferant");
 		dialog.setHeaderText("Vervollständigung der Angbaben");
 		dialog.setContentText("Bitte geben Sie die Angaben des Lieferanten ein:");
-		
+
 		Image image = new Image(this.getClass().getResource("icons/information_window.png").toString());
-        ImageView imageView = new ImageView(image);
+		ImageView imageView = new ImageView(image);
 		dialog.setGraphic(imageView);
-		
+
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
@@ -127,7 +127,7 @@ public class Validation {
 					artikel.setKundennummer(kundennummerText.getText());
 					artikel.setLieferant(nameText.getText());
 				}
-				if (b == buttonTypeCancel){
+				if (b == buttonTypeCancel) {
 					artikel.setKundennummer(kundennummerText.getText());
 					artikel.setLieferant(nameText.getText());
 					return null;
@@ -142,16 +142,15 @@ public class Validation {
 		}
 		return artikel;
 	}
-	
-	public int showDelete(Artikel artikel) { 
+
+	public int showDelete(Artikel artikel) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation Dialog");
 		alert.setHeaderText("Bitte um Bestätigung.");
 		alert.setContentText("Sind Sie sicher, dass Sie den ausgewählten Datensatz löschen möchten?");
 
 		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-		stage.getIcons()
-				.add(new Image(this.getClass().getResource("icons/information.png").toString()));
+		stage.getIcons().add(new Image(this.getClass().getResource("icons/information.png").toString()));
 
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.get() == ButtonType.OK) {
@@ -160,7 +159,7 @@ public class Validation {
 		return 0;
 	}
 
-	public void showExpired(){
+	public void showExpired() {
 		ArrayList<Artikel> expired = schnittstelle.datenbankverbindungSelectExpired();
 		if (expired.size() > 0) {
 			for (int i = 0; i < expired.size(); i++) {
@@ -169,16 +168,29 @@ public class Validation {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Error Dialog");
 				alert.setHeaderText("Eine Ware ist nur noch 10 Tage vom Ablaufdatum entfernt!");
-				alert.setContentText("Die Ware " + artikel.getBezeichnung() + " mit dem Barcode "
-						+ artikel.getBarcode() + " von dem Lieferanten " + artikel.getLieferant()
-						+ " ist kurz vor dem Ablaufdatum!");
+				alert.setContentText("Die Ware " + artikel.getBezeichnung() + " mit dem Barcode " + artikel.getBarcode()
+						+ " von dem Lieferanten " + artikel.getLieferant() + " ist kurz vor dem Ablaufdatum!");
 
 				Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-				stage.getIcons()
-						.add(new Image(this.getClass().getResource("icons/alert.png").toString()));
+				stage.getIcons().add(new Image(this.getClass().getResource("icons/alert.png").toString()));
 
 				alert.showAndWait();
 			}
+		}
+	}
+
+	public void showExpiredSingle(Artikel expired) {
+		if (schnittstelle.datenbankverbindungSelectExpiredSingle(expired)) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error Dialog");
+			alert.setHeaderText("Eine Ware ist nur noch 10 Tage vom Ablaufdatum entfernt!");
+			alert.setContentText("Die Ware " + expired.getBezeichnung() + " mit dem Barcode " + expired.getBarcode()
+					+ " von dem Lieferanten " + expired.getLieferant() + " ist kurz vor dem Ablaufdatum!");
+
+			Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+			stage.getIcons().add(new Image(this.getClass().getResource("icons/alert.png").toString()));
+
+			alert.showAndWait();
 		}
 	}
 }

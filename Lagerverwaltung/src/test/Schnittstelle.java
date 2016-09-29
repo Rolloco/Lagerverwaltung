@@ -342,4 +342,73 @@ public class Schnittstelle {
 		}
 		return null;
 	}
+	
+	public static Boolean datenbankverbindungSelectExpiredSingle(Artikel artikel) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		try {
+			// STEP 2: Register JDBC driver
+			Class.forName(JDBC_DRIVER);
+
+			// STEP 3: Open a connection
+			System.out.println("Connecting to database...");
+			conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+			// STEP 4: Execute a query
+			System.out.println("Creating database...");
+			ps = conn.prepareStatement(
+					"SELECT * FROM ARTIKEL WHERE ABLAUFDATUM > NOW() && ABLAUFDATUM < DATE_SUB(NOW(), INTERVAL -10 DAY) && BARCODE = ?;");
+			ps.setString(1, artikel.getBarcode());
+
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				return true;
+			}
+			return false;
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null)
+					ps.close();
+			} catch (SQLException se2) {
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// SINGLE EDIT BERICHTIGEN - BEI ÄNDERUNG DERZEIT ABBRUCH
+	
+	
+	
+	
+	
+	
+	
+	
 }

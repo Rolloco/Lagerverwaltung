@@ -143,7 +143,7 @@ public class TableController {
 				Instant instant = addAblaufdatum.getValue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 				Date aDatum = Date.from(instant);
 
-				Artikel person = new Artikel(addBarcode.getText(), //
+				Artikel artikel = new Artikel(addBarcode.getText(), //
 						addBezeichnung.getText(), //
 						addStueckzahl.getValue().toString(), //
 						today, //
@@ -152,7 +152,7 @@ public class TableController {
 						"");
 
 				try {
-					validator.validate(person);
+					validator.validate(artikel);
 				} catch (Exception e1) {
 					System.out.println(e1.getMessage());
 					// e1.printStackTrace();
@@ -160,17 +160,18 @@ public class TableController {
 				}
 
 				try {
-					person = schnittstelle.datenbankverbindungInsert(person);
+					artikel = schnittstelle.datenbankverbindungInsert(artikel);
 				} catch (Exception e2) {
 					System.out.println(e2.getMessage());
 					// e2.printStackTrace();
 					return;
 				}
-				masterData.add(person);
+				masterData.add(artikel);
 				addBarcode.clear();
 				addBezeichnung.clear();
 				addPreis.clear();
 				addKundennummer.clear();
+				validator.showExpiredSingle(artikel);
 			}
 		});
 
@@ -255,7 +256,7 @@ public class TableController {
 						.setAblaufDatum(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
-				validator.showExpired();
+				validator.showExpiredSingle(t.getTableView().getItems().get(t.getTablePosition().getRow()));
 			}
 		});
 		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
