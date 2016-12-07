@@ -1,42 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.effect.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane minWidth="315.0" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="test.TableController">
-  <children>
-    <TableView fx:id="personTable" editable="true" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0">
-      <columns>
-        <TableColumn fx:id="barcodeColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Barcode" />
-        <TableColumn fx:id="bezeichnungColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Bezeichnung" />
-        <TableColumn fx:id="stueckzahlColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Stueckzahl" />
-        <TableColumn fx:id="datumColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Datum" />
-        <TableColumn fx:id="ablaufDatumColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Ablaufdatum" />
-        <TableColumn fx:id="preisColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Preis" />
-        <TableColumn fx:id="kundennummerColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Kundennummer" />
-        <TableColumn fx:id="lieferantColumn"  maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Lieferant" />
-      </columns>
-	  <columnResizePolicy>
-		<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-	  </columnResizePolicy>
-    </TableView>
-    <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-      <children>
-        <Label text="Filter Table:" />
-        <TextField fx:id="filterField" prefWidth="-1.0" HBox.hgrow="ALWAYS" promptText="Filtern nach..."/>
-      </children>
-    </HBox>
-  </children>
-  <HBox id="ButtonHBox" spacing="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.BottomAnchor="10.0">
-  	<children>
-  		<TextField fx:id="addBarcode" prefWidth="120.0"  promptText="Barcode"/>
-  		<TextField fx:id="addBezeichnung" prefWidth="120.0"  promptText="Bezeichnung"/>
-  		<Spinner fx:id="addStueckzahl" accessibleText="Stückzahl"/>
-  		<DatePicker fx:id="addAblaufdatum" prefWidth="120.0" promptText="Ablaufdatum" />
-  		<TextField fx:id="addPreis" prefWidth="120.0"  promptText="Preis"/>
-  		<TextField fx:id="addKundennummer" prefWidth="120.0"  promptText="Kundennummer"/>
-    	<Button fx:id="addToTable" mnemonicParsing="false" text="Add" />
-  	</children>
-  </HBox>
-</AnchorPane>
+<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="test.TableController">
+   <tabs>
+      <Tab text="Artikel">
+         <content>
+            <AnchorPane minWidth="315.0" prefHeight="600.0" prefWidth="1000.0">
+              <children>
+                <TableView fx:id="personTable" editable="true" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0">
+                  <columns>
+                    <TableColumn fx:id="barcodeColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Barcode" />
+                    <TableColumn fx:id="bezeichnungColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Bezeichnung" />
+                    <TableColumn fx:id="stueckzahlColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Stueckzahl" />
+                    <TableColumn fx:id="datumColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Datum" />
+                    <TableColumn fx:id="ablaufDatumColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Ablaufdatum" />
+                    <TableColumn fx:id="preisColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Preis in Euro" />
+                    <TableColumn fx:id="kundennummerColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Kundennummer" />
+                    <TableColumn fx:id="lieferantColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Lieferant" />
+                  </columns>
+            	  <columnResizePolicy>
+            		<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            	  </columnResizePolicy>
+                </TableView>
+                <HBox id="HBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <children>
+                    <Label text="Filter Table:" />
+                    <TextField fx:id="filterField" prefWidth="-1.0" promptText="Filtern nach..." HBox.hgrow="ALWAYS" />
+                  </children>
+                </HBox>
+              </children>
+               <children>
+                 <HBox id="ButtonHBox" spacing="5.0" AnchorPane.BottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+                 	<children>
+                 		<TextField fx:id="addBarcode" prefWidth="120.0" promptText="Barcode" />
+                 		<TextField fx:id="addBezeichnung" prefWidth="120.0" promptText="Bezeichnung" />
+                 		<Spinner fx:id="addStueckzahl" accessibleText="Stï¿½ckzahl" />
+                 		<DatePicker fx:id="addAblaufdatum" prefWidth="120.0" promptText="Ablaufdatum" />
+                 		<TextField fx:id="addPreis" prefWidth="120.0" promptText="Preis" />
+                 		<TextField fx:id="addKundennummer" prefWidth="120.0" promptText="Kundennummer" />
+                   	<Button fx:id="addToTable" mnemonicParsing="false" text="Add" />
+                 	</children>
+                 </HBox>
+               </children>
+            </AnchorPane>
+         </content>
+         <graphic>
+            <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icons/article.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Tab>
+      <Tab text="Lieferanten">
+        <content>
+            <AnchorPane fx:id="lieferantPane" minWidth="315.0" prefHeight="600.0" prefWidth="1000.0">
+              <children>
+                <TableView fx:id="lieferantTable" editable="true" prefHeight="-1.0" prefWidth="-1.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0">
+                  <columns>
+                    <TableColumn fx:id="kundennummerLieferantColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Kundennummer" />
+                    <TableColumn fx:id="lieferantLieferantColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="120.0" text="Name des Lieferanten" />
+                  </columns>
+            	  <columnResizePolicy>
+            		<TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            	  </columnResizePolicy>
+                </TableView>
+                <HBox id="HBoxLieferant" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                  <children>
+                    <Label text="Filter Table:" />
+                    <TextField fx:id="filterFieldLieferant" prefWidth="-1.0" promptText="Filtern nach..." HBox.hgrow="ALWAYS" />
+                  </children>
+                </HBox>
+              </children>
+               <children>
+                 <HBox id="ButtonHBox" spacing="5.0" AnchorPane.BottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+                 	<children>
+                 		<TextField fx:id="addKundennummer" prefWidth="120.0" promptText="Kundennummer" />
+                 		<TextField fx:id="addName" prefWidth="120.0" promptText="Name" />
+                   		<Button fx:id="addToTableLieferant" mnemonicParsing="false" text="Add" />
+                 	</children>
+                 </HBox>
+               </children>
+            </AnchorPane>
+        </content>
+         <graphic>
+            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@icons/supplier.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Tab>
+   </tabs>
+</TabPane>
