@@ -33,20 +33,20 @@ public class Validation {
 	public Validation() {
 	}
 
-	public void validate(Artikel person) throws Exception {
+	public void validate(String barcode, String bezeichnung, String stueckzahl, String aDatum, String preis, String kundennummer) throws Exception {
 		errorTextBefore = "Das Feld ";
 		errorTextAfter = " darf nicht leer sein!";
-		if (person.getBarcode().isEmpty()) {
+		if (barcode.isEmpty()) {
 			showError(errorTextBefore + "Barcode" + errorTextAfter);
-		} else if (person.getBezeichnung().isEmpty()) {
+		} else if (bezeichnung.isEmpty()) {
 			showError(errorTextBefore + "Bezeichnung" + errorTextAfter);
-		} else if (person.getAblaufDatum().isEmpty()) {
+		} else if (aDatum.isEmpty()) {
 			showError(errorTextBefore + "Ablaufdatum" + errorTextAfter);
-		} else if (person.getPreis().isEmpty()) {
+		} else if (preis.isEmpty()) {
 			showError(errorTextBefore + "Preis" + errorTextAfter);
-		} else if (!person.getPreis().matches("([0-9]*[.,])?[0-9]+")) {
+		} else if (!preis.matches("([0-9]*[.,])?[0-9]+")) {
 			showError("Der Preis muss eine Zahl sein!");
-		} else if (person.getKundennummer().isEmpty()) {
+		} else if (kundennummer.isEmpty()) {
 			showError(errorTextBefore + "Kundennummer" + errorTextAfter);
 		}
 	}

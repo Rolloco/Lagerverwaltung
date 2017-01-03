@@ -48,10 +48,10 @@ public class Schnittstelle {
 			while (rs.next()) {
 				String bar = rs.getString("BARCODE");
 				String bez = rs.getString("BEZEICHNUNG");
-				String stueck = rs.getString("STUECKZAHL");
+				int stueck = rs.getInt("STUECKZAHL");
 				Date datum = rs.getDate("DATUM");
 				Date aDatum = rs.getDate("ABLAUFDATUM");
-				String preis = rs.getString("PREIS");
+				int preis = rs.getInt("PREIS");
 				String kundennr = rs.getString("KUNDENNUMMER");
 
 				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
@@ -119,10 +119,10 @@ public class Schnittstelle {
 					"INSERT INTO ARTIKEL ( BARCODE, BEZEICHNUNG, STUECKZAHL, DATUM, ABLAUFDATUM, PREIS, KUNDENNUMMER ) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
 			ps.setString(1, artikel.getBarcode());
 			ps.setString(2, artikel.getBezeichnung());
-			ps.setString(3, artikel.getStueckzahl());
+			ps.setInt(3, artikel.getStueckzahl());
 			ps.setString(4, artikel.getDatum());
 			ps.setString(5, artikel.getAblaufDatum());
-			ps.setString(6, artikel.getPreis());
+			ps.setInt(6, artikel.getPreis());
 			ps.setString(7, artikel.getKundennummer());
 
 			ps.executeUpdate();
@@ -165,9 +165,9 @@ public class Schnittstelle {
 			ps = conn.prepareStatement(
 					"UPDATE ARTIKEL SET BEZEICHNUNG = ?, STUECKZAHL = ?, ABLAUFDATUM = ?, PREIS = ?, KUNDENNUMMER = ? WHERE BARCODE = ?");
 			ps.setString(1, artikel.getBezeichnung());
-			ps.setString(2, artikel.getStueckzahl());
+			ps.setInt(2, artikel.getStueckzahl());
 			ps.setString(3, datum);
-			ps.setString(4, artikel.getPreis());
+			ps.setInt(4, artikel.getPreis());
 			ps.setString(5, artikel.getKundennummer());
 			ps.setString(6, artikel.getBarcode());
 
@@ -301,7 +301,7 @@ public class Schnittstelle {
 				String kundennr = rs.getString("KUNDENNUMMER");
 
 
-				expired.add(new Artikel(bar, bez, "", "", "", "", kundennr, ""));
+				expired.add(new Artikel(bar, bez, 0, "", "", 0, kundennr, ""));
 			}
 			for (int i = 0; i < expired.size(); i++) {
 				stmt = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");

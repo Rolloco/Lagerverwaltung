@@ -1,5 +1,7 @@
 package test;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -12,21 +14,21 @@ public class Artikel {
 
 	private StringProperty barcode;
 	private StringProperty bezeichnung;
-	private StringProperty stueckzahl;
+	private IntegerProperty stueckzahl; 
 	private StringProperty datum;
 	private StringProperty ablaufDatum;
-	private StringProperty preis;
+	private IntegerProperty preis;
 	private StringProperty kundennummer;
 	private StringProperty lieferant;
 
-	public Artikel(String barcode, String bezeichnung, String stueckzahl, String datum,
-			String ablaufDatum, String preis, String kundennummer, String lieferant) {
+	public Artikel(String barcode, String bezeichnung, int stueckzahl, String datum,
+			String ablaufDatum, int preis, String kundennummer, String lieferant) {
 		this.barcode = new SimpleStringProperty(barcode);
 		this.bezeichnung = new SimpleStringProperty(bezeichnung);
-		this.stueckzahl = new SimpleStringProperty(stueckzahl);
+		this.stueckzahl = new SimpleIntegerProperty(stueckzahl);
 		this.datum = new SimpleStringProperty(datum);
 		this.ablaufDatum = new SimpleStringProperty(ablaufDatum);
-		this.preis = new SimpleStringProperty(preis);
+		this.preis = new SimpleIntegerProperty(preis);
 		this.kundennummer = new SimpleStringProperty(kundennummer);
 		this.lieferant = new SimpleStringProperty(lieferant);
 	}
@@ -55,7 +57,7 @@ public class Artikel {
 		return bezeichnung.get();
 	}
 
-	public String getStueckzahl() {
+	public int getStueckzahl() {
 		return stueckzahl.get();
 	}
 
@@ -67,7 +69,7 @@ public class Artikel {
 		return ablaufDatum.get();
 	}
 
-	public String getPreis() {
+	public int getPreis() {
 		return preis.get();
 	}
 
@@ -75,7 +77,7 @@ public class Artikel {
 		return kundennummer.get();
 	}
 
-	public void setStueckzahl(String stueckzahl) {
+	public void setStueckzahl(int stueckzahl) {
 		this.stueckzahl.set(stueckzahl);
 	}
 	
@@ -87,7 +89,7 @@ public class Artikel {
 		this.ablaufDatum.set(ablaufDatum);
 	}
 	
-	public void setPreis(String preis) {
+	public void setPreis(int preis) {
 		this.preis.set(preis);
 	}
 	
@@ -95,7 +97,7 @@ public class Artikel {
 		this.kundennummer.set(kundennummer);
 	}
 	
-	public StringProperty stueckzahlProperty() {
+	public IntegerProperty stueckzahlProperty() {
 		return stueckzahl;
 	}
 	
@@ -107,7 +109,7 @@ public class Artikel {
 		return ablaufDatum;
 	}
 	
-	public StringProperty preisProperty() {
+	public IntegerProperty preisProperty() {
 		return preis;
 	}
 	

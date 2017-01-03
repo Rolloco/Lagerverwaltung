@@ -24,6 +24,8 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -58,6 +60,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.util.converter.NumberStringConverter;
 import oracle.jdbc.AdditionalDatabaseMetaData;
 
 /**
@@ -78,13 +81,13 @@ public class TableController {
 	@FXML
 	private TableColumn<Artikel, String> bezeichnungColumn;
 	@FXML
-	private TableColumn<Artikel, String> stueckzahlColumn;
+	private TableColumn<Artikel, Number> stueckzahlColumn;
 	@FXML
 	private TableColumn<Artikel, String> datumColumn;
 	@FXML
 	private TableColumn<Artikel, String> ablaufDatumColumn;
 	@FXML
-	private TableColumn<Artikel, String> preisColumn;
+	private TableColumn<Artikel, Number> preisColumn;
 	@FXML
 	private TableColumn<Artikel, String> kundennummerColumn;
 	@FXML
@@ -151,22 +154,28 @@ public class TableController {
 				Instant instant = addAblaufdatum.getValue().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 				Date aDatum = Date.from(instant);
 
-				Artikel artikel = new Artikel(addBarcode.getText(), //
-						addBezeichnung.getText(), //
-						addStueckzahl.getValue().toString(), //
-						today, //
-						format.format(aDatum), //
-						addPreis.getText(), //
-						addKundennummer.getText(), //
-						"Test");
-
+				//Validation der Eingaben
 				try {
-					validator.validate(artikel);
+					validator.validate(addBarcode.getText(), //
+							addBezeichnung.getText(), //
+							addStueckzahl.getValue().toString(), //
+							format.format(aDatum), //
+							addPreis.getText(), //
+							addKundennummer.getText());
 				} catch (Exception e1) {
 					System.out.println(e1.getMessage());
 					// e1.printStackTrace();
 					return;
 				}
+				
+				Artikel artikel = new Artikel(addBarcode.getText(), //
+						addBezeichnung.getText(), //
+						Integer.parseInt(addStueckzahl.getValue().toString()), //
+						today, //
+						format.format(aDatum), //
+						Integer.parseInt(addPreis.getText()), //
+						addKundennummer.getText(), //
+						"");
 
 				try {
 					artikel = schnittstelle.datenbankverbindungInsert(artikel);
@@ -264,19 +273,26 @@ public class TableController {
 		addTextLimiter(addBezeichnung, 20);
 
 		// FOR STUECKZAHL
-		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
+		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, Number>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+			public void handle(TableColumn.CellEditEvent<Artikel, Number> t) {
 				logger.info("Bestehende Stückzahl wurde angepasst");
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getStueckzahl());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setStueckzahl(t.getNewValue());
+						.setStueckzahl(t.getNewValue().intValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
 			}
 		});
-		stueckzahlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		stueckzahlColumn.setCellValueFactory(new Callback<CellDataFeatures<Artikel, Number>, ObservableValue<Number>>() {
+		    @Override
+		    public ObservableValue<Number> call(CellDataFeatures<Artikel, Number> p) {
+		        return new SimpleIntegerProperty(p.getValue().getStueckzahl());
+		} 
+		});
+
+		stueckzahlColumn.setCellFactory(TextFieldTableCell.<Artikel, Number>forTableColumn(new NumberStringConverter()));
 
 		// FOR ABLAUFDATUM
 		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
@@ -295,18 +311,23 @@ public class TableController {
 		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
 
 		// FOR PREIS
-		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
+		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, Number>>() {
 			@Override
-			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+			public void handle(TableColumn.CellEditEvent<Artikel, Number> t) {
 				logger.info("Bestehender Preis wurde angepasst");
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getPreis());
-				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue());
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue().intValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
 			}
 		});
-		preisColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+		preisColumn.setCellValueFactory(new Callback<CellDataFeatures<Artikel, Number>, ObservableValue<Number>>() {
+		    @Override
+		    public ObservableValue<Number> call(CellDataFeatures<Artikel, Number> p) {
+		        return new SimpleIntegerProperty(p.getValue().getPreis());
+		} 
+		});
 		addTextLimiter(addPreis, 20);
 		addTextLimiter(addKundennummer, 20);
 	}
@@ -332,13 +353,13 @@ public class TableController {
 					return true; // Filter matches first name.
 				} else if (person.getBezeichnung().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
-				} else if (person.getStueckzahl().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				} else if (String.valueOf(person.getStueckzahl()).toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
 				} else if (person.getDatum().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
 				} else if (person.getAblaufDatum().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
-				} else if (person.getPreis().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				} else if (String.valueOf(person.getPreis()).toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
 				} else if (person.getKundennummer().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
