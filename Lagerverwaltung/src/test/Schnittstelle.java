@@ -19,7 +19,7 @@ import javafx.scene.control.ButtonType;
 public class Schnittstelle {
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://localhost/lagerverwaltung?";
+	static final String DB_URL = "jdbc:mysql://localhost/lagerverwaltung?autoReconnect=true&useSSL=false";
 
 	// Database credentials
 	static final String USER = "root";
@@ -37,11 +37,9 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
-			System.out.println("Creating database...");
 			String sqlArtikel = "SELECT * FROM ARTIKEL";
 
 			stmt = conn.prepareStatement(sqlArtikel);
@@ -101,11 +99,9 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
-			System.out.println("Creating database...");
 			ps = conn.prepareStatement("SELECT * FROM LIEFERANT WHERE KUNDENNUMMER = ?");
 			ps.setString(1, artikel.getKundennummer());
 			ResultSet rs = ps.executeQuery();
@@ -163,7 +159,6 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
@@ -206,7 +201,6 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
@@ -258,7 +252,6 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
@@ -295,11 +288,9 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
-			System.out.println("Creating database...");
 			String sqlArtikel = "SELECT * FROM artikel WHERE ABLAUFDATUM > NOW() && ABLAUFDATUM < DATE_SUB(NOW(), INTERVAL -10 DAY)";
 			stmt = conn.prepareStatement(sqlArtikel);
 
@@ -351,11 +342,9 @@ public class Schnittstelle {
 			Class.forName(JDBC_DRIVER);
 
 			// STEP 3: Open a connection
-			System.out.println("Connecting to database...");
 			conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
 			// STEP 4: Execute a query
-			System.out.println("Creating database...");
 			ps = conn.prepareStatement(
 					"SELECT * FROM ARTIKEL WHERE ABLAUFDATUM > NOW() && ABLAUFDATUM < DATE_SUB(NOW(), INTERVAL -10 DAY) && BARCODE = ?;");
 			ps.setString(1, artikel.getBarcode());
@@ -385,30 +374,21 @@ public class Schnittstelle {
 			}
 		}
 		return null;
+		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		
+//		SINGLE EDIT KUNDENNUMMER NOCH NICHT MÖGLICH
+//		
+//		
+//		
+//		
+//		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// SINGLE EDIT BERICHTIGEN - BEI ÄNDERUNG DERZEIT ABBRUCH
-	
-	
-	
-	
-	
-	
-	
-	
 }

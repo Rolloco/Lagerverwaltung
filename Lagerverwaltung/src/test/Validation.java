@@ -40,14 +40,14 @@ public class Validation {
 			showError(errorTextBefore + "Barcode" + errorTextAfter);
 		} else if (person.getBezeichnung().isEmpty()) {
 			showError(errorTextBefore + "Bezeichnung" + errorTextAfter);
-		} else if (person.getPreis().isEmpty()) {
-			showError(errorTextBefore + "Preis" + errorTextAfter);
-		} else if (person.getKundennummer().isEmpty()) {
-			showError(errorTextBefore + "Kundennummer" + errorTextAfter);
 		} else if (person.getAblaufDatum().isEmpty()) {
 			showError(errorTextBefore + "Ablaufdatum" + errorTextAfter);
+		} else if (person.getPreis().isEmpty()) {
+			showError(errorTextBefore + "Preis" + errorTextAfter);
 		} else if (!person.getPreis().matches("([0-9]*[.,])?[0-9]+")) {
 			showError("Der Preis muss eine Zahl sein!");
+		} else if (person.getKundennummer().isEmpty()) {
+			showError(errorTextBefore + "Kundennummer" + errorTextAfter);
 		}
 	}
 

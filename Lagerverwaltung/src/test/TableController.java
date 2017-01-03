@@ -14,6 +14,12 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -60,6 +66,8 @@ import oracle.jdbc.AdditionalDatabaseMetaData;
  * @author Collin Kempkes
  */
 public class TableController {
+	
+	private static Logger logger = Logger.getRootLogger();
 
 	@FXML
 	private TextField filterField;
@@ -147,9 +155,10 @@ public class TableController {
 						addBezeichnung.getText(), //
 						addStueckzahl.getValue().toString(), //
 						today, //
-						format.format(aDatum), addPreis.getText(), //
+						format.format(aDatum), //
+						addPreis.getText(), //
 						addKundennummer.getText(), //
-						"");
+						"Test");
 
 				try {
 					validator.validate(artikel);
@@ -208,6 +217,18 @@ public class TableController {
 				});
 			}
 		}, 100, 86400000); // Alle 24 Stunden poppt eine Erinnerung auf
+		
+		// Erstellung des Loggers
+		try {
+		      SimpleLayout layout = new SimpleLayout();
+		      ConsoleAppender consoleAppender = new ConsoleAppender( layout );
+		      logger.addAppender( consoleAppender );
+		      FileAppender fileAppender = new FileAppender( layout, "logs/Table.log", true );
+		      logger.addAppender( fileAppender );
+		      logger.setLevel( Level.ALL );
+		    } catch( Exception ex ) {
+		      System.out.println( ex );
+		    }
 	}
 
 	private void addEditability() {
@@ -215,9 +236,12 @@ public class TableController {
 		barcodeColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				logger.info("Bestehender Barcode wurde angepasst");
+				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getBarcode());
 				schnittstelle.datenbankverbindungInsertOnEditPrimary(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()), t.getNewValue(), "BARCODE");
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
+				logger.info("Neu: " + t.getNewValue());
 			}
 		});
 		barcodeColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -227,10 +251,13 @@ public class TableController {
 		bezeichnungColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				logger.info("Bestehende Bezeichnung wurde angepasst");
+				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getBezeichnung());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setBezeichnung(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				logger.info("Neu: " + t.getNewValue());
 			}
 		});
 		bezeichnungColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -240,10 +267,13 @@ public class TableController {
 		stueckzahlColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				logger.info("Bestehende Stückzahl wurde angepasst");
+				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getStueckzahl());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setStueckzahl(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				logger.info("Neu: " + t.getNewValue());
 			}
 		});
 		stueckzahlColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -252,11 +282,14 @@ public class TableController {
 		ablaufDatumColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				logger.info("Bestehendes Ablaufdatum wurde angepasst");
+				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getAblaufDatum());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setAblaufDatum(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				validator.showExpiredSingle(t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				logger.info("Neu: " + t.getNewValue());
 			}
 		});
 		ablaufDatumColumn.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -265,9 +298,12 @@ public class TableController {
 		preisColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Artikel, String>>() {
 			@Override
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
+				logger.info("Bestehender Preis wurde angepasst");
+				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getPreis());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue());
 				schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
+				logger.info("Neu: " + t.getNewValue());
 			}
 		});
 		preisColumn.setCellFactory(TextFieldTableCell.forTableColumn());

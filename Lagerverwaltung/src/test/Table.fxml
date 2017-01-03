@@ -81,7 +81,7 @@
                <children>
                  <HBox id="ButtonHBox" spacing="5.0" AnchorPane.BottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
                  	<children>
-                 		<TextField fx:id="addKundennummer" prefWidth="120.0" promptText="Kundennummer" />
+                 		<TextField fx:id="addKundennummerLieferant" prefWidth="120.0" promptText="Kundennummer" />
                  		<TextField fx:id="addName" prefWidth="120.0" promptText="Name" />
                    		<Button fx:id="addToTableLieferant" mnemonicParsing="false" text="Add" />
                  	</children>
