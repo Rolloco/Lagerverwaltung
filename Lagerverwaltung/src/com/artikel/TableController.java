@@ -1,4 +1,4 @@
-package test;
+package com.artikel;
 
 import java.text.NumberFormat;
 import java.text.ParseException;

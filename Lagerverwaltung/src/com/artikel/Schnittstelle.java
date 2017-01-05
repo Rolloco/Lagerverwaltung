@@ -1,4 +1,4 @@
-package test;
+package com.artikel;
 
 import java.sql.Connection;
 import java.sql.Date;
