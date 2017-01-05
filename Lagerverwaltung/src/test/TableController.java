@@ -1,10 +1,13 @@
 package test;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -86,15 +90,13 @@ public class TableController {
 
 	private ObservableList<Artikel> masterData = FXCollections.observableArrayList();
 
-	private Schnittstelle schnittstelle;
-
 	private Validation validator = new Validation();
 
 	/**
 	 * Just add some sample data in the constructor.
 	 */
 	public TableController() {
-		masterData.addAll(schnittstelle.datenbankverbindungSelect());
+		masterData.addAll(Schnittstelle.datenbankverbindungSelect());
 	}
 
 	/**
@@ -144,17 +146,26 @@ public class TableController {
 					return;
 				}
 				
-				Artikel artikel = new Artikel(addBarcode.getText(), //
-						addBezeichnung.getText(), //
-						Integer.parseInt(addStueckzahl.getValue().toString()), //
-						today, //
-						format.format(aDatum), //
-						Integer.parseInt(addPreis.getText()), //
-						addKundennummer.getText(), //
-						"");
+				NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMAN);
+				
+				Artikel artikel = null;
+				try {
+					artikel = new Artikel(addBarcode.getText(), //
+							addBezeichnung.getText(), //
+							Integer.parseInt(addStueckzahl.getValue().toString()), //
+							today, //
+							format.format(aDatum), //
+							numberFormat.parse(addPreis.getText()).doubleValue(),
+//						Double.parseDouble(addPreis.getText()), //
+							addKundennummer.getText(), //
+							"");
+				} catch (NumberFormatException | ParseException e1) {
+					logger.error(e1);
+					logger.error("Fehler beim parsen des Preis Wertes");
+				}
 
 				try {
-					artikel = schnittstelle.datenbankverbindungInsert(artikel);
+					artikel = Schnittstelle.datenbankverbindungInsert(artikel);
 				} catch (Exception e2) {
 					System.out.println(e2.getMessage());
 					// e2.printStackTrace();
@@ -181,7 +192,7 @@ public class TableController {
 					if (keyEvent.getCode().equals(KeyCode.DELETE)) {
 						int delete = validator.showDelete(selectedItem);
 						if (delete == 1) {
-							schnittstelle.datenbankverbindungDelete(selectedItem);
+							Schnittstelle.datenbankverbindungDelete(selectedItem);
 							masterData.remove(selectedItem);
 						} else {
 							return;
@@ -223,7 +234,7 @@ public class TableController {
 			public void handle(TableColumn.CellEditEvent<Artikel, String> t) {
 				logger.info("Bestehender Barcode wurde angepasst");
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getBarcode());
-				schnittstelle.datenbankverbindungInsertOnEditPrimary(
+				Schnittstelle.datenbankverbindungInsertOnEditPrimary(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()), t.getNewValue(), "BARCODE");
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBarcode(t.getNewValue());
 				logger.info("Neu: " + t.getNewValue());
@@ -240,7 +251,7 @@ public class TableController {
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getBezeichnung());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setBezeichnung(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
+				Schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
 			}
@@ -256,7 +267,7 @@ public class TableController {
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getStueckzahl());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setStueckzahl(t.getNewValue().intValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
+				Schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
 			}
@@ -267,7 +278,6 @@ public class TableController {
 		        return new SimpleIntegerProperty(p.getValue().getStueckzahl());
 		} 
 		});
-
 		stueckzahlColumn.setCellFactory(TextFieldTableCell.<Artikel, Number>forTableColumn(new NumberStringConverter()));
 
 		// FOR ABLAUFDATUM
@@ -278,7 +288,7 @@ public class TableController {
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getAblaufDatum());
 				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow()))
 						.setAblaufDatum(t.getNewValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
+				Schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				validator.showExpiredSingle(t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
@@ -292,8 +302,8 @@ public class TableController {
 			public void handle(TableColumn.CellEditEvent<Artikel, Number> t) {
 				logger.info("Bestehender Preis wurde angepasst");
 				logger.info("Alt: " + t.getTableView().getItems().get(t.getTablePosition().getRow()).getPreis());
-				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue().intValue());
-				schnittstelle.datenbankverbindungInsertOnEdit(
+				((Artikel) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPreis(t.getNewValue().doubleValue());
+				Schnittstelle.datenbankverbindungInsertOnEdit(
 						t.getTableView().getItems().get(t.getTablePosition().getRow()));
 				logger.info("Neu: " + t.getNewValue());
 			}
@@ -301,9 +311,10 @@ public class TableController {
 		preisColumn.setCellValueFactory(new Callback<CellDataFeatures<Artikel, Number>, ObservableValue<Number>>() {
 		    @Override
 		    public ObservableValue<Number> call(CellDataFeatures<Artikel, Number> p) {
-		        return new SimpleIntegerProperty(p.getValue().getPreis());
+		        return new SimpleDoubleProperty(p.getValue().getPreis());
 		} 
 		});
+		preisColumn.setCellFactory(TextFieldTableCell.<Artikel, Number>forTableColumn(new NumberStringConverter()));
 		addTextLimiter(addPreis, 20);
 		addTextLimiter(addKundennummer, 20);
 	}
@@ -369,4 +380,20 @@ public class TableController {
 			}
 		});
 	}
+//	
+//	
+//	
+//	Keine Komma Zahlen bei Preis möglich - Double Int Conversion?
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
 }

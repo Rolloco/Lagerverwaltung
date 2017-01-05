@@ -45,7 +45,7 @@ public class Schnittstelle {
 				int stueck = rs.getInt("STUECKZAHL");
 				Date datum = rs.getDate("DATUM");
 				Date aDatum = rs.getDate("ABLAUFDATUM");
-				int preis = rs.getInt("PREIS");
+				double preis = rs.getDouble("PREIS");
 				String kundennr = rs.getString("KUNDENNUMMER");
 
 				DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
@@ -85,6 +85,7 @@ public class Schnittstelle {
 		return null;
 	}
 
+	@SuppressWarnings("resource")
 	public static Artikel datenbankverbindungInsert(Artikel artikel) throws Exception {
 		Connection conn = null;
 		PreparedStatement ps = null;
@@ -116,7 +117,7 @@ public class Schnittstelle {
 			ps.setInt(3, artikel.getStueckzahl());
 			ps.setString(4, artikel.getDatum());
 			ps.setString(5, artikel.getAblaufDatum());
-			ps.setInt(6, artikel.getPreis());
+			ps.setDouble(6, artikel.getPreis());
 			ps.setString(7, artikel.getKundennummer());
 
 			ps.executeUpdate();
@@ -161,7 +162,7 @@ public class Schnittstelle {
 			ps.setString(1, artikel.getBezeichnung());
 			ps.setInt(2, artikel.getStueckzahl());
 			ps.setString(3, datum);
-			ps.setInt(4, artikel.getPreis());
+			ps.setDouble(4, artikel.getPreis());
 			ps.setString(5, artikel.getKundennummer());
 			ps.setString(6, artikel.getBarcode());
 

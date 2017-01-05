@@ -3,6 +3,8 @@ package test;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -21,8 +23,6 @@ public class Validation {
 	private static String errorTextBefore;
 	private static String errorTextAfter;
 
-	private static Schnittstelle schnittstelle;
-
 	public Validation() {
 	}
 
@@ -37,8 +37,8 @@ public class Validation {
 			showError(errorTextBefore + "Ablaufdatum" + errorTextAfter);
 		} else if (preis.isEmpty()) {
 			showError(errorTextBefore + "Preis" + errorTextAfter);
-		} else if (!preis.matches("([0-9]*[.,])?[0-9]+")) {
-			showError("Der Preis muss eine Zahl sein!");
+		} else if (!preis.matches("([0-9]*[,])?[0-9]+")) {
+			showError("Der Preis muss eine Zahl sein und darf nur mit einem Komma separiert werden!");
 		} else if (kundennummer.isEmpty()) {
 			showError(errorTextBefore + "Kundennummer" + errorTextAfter);
 		}
@@ -79,7 +79,7 @@ public class Validation {
 			return showLieferantEingabe(artikel);
 		}
 		throw new Exception("Der Lieferant " + artikel.getLieferant() + //
-				" mit der Kundennumemr " + artikel.getKundennummer() + //
+				" mit der Kundennummer " + artikel.getKundennummer() + //
 				" existiert nicht.");
 	}
 
@@ -153,7 +153,7 @@ public class Validation {
 	}
 
 	public void showExpired() {
-		ArrayList<Artikel> expired = schnittstelle.datenbankverbindungSelectExpired();
+		ArrayList<Artikel> expired = Schnittstelle.datenbankverbindungSelectExpired();
 		if (expired.size() > 0) {
 			for (int i = 0; i < expired.size(); i++) {
 				Artikel artikel = expired.get(i);
@@ -173,7 +173,7 @@ public class Validation {
 	}
 
 	public void showExpiredSingle(Artikel expired) {
-		if (schnittstelle.datenbankverbindungSelectExpiredSingle(expired)) {
+		if (Schnittstelle.datenbankverbindungSelectExpiredSingle(expired)) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Error Dialog");
 			alert.setHeaderText("Eine Ware ist nur noch 10 Tage vom Ablaufdatum entfernt!");

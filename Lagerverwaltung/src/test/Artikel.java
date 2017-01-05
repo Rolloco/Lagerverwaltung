@@ -1,6 +1,8 @@
 package test;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -17,18 +19,18 @@ public class Artikel {
 	private IntegerProperty stueckzahl; 
 	private StringProperty datum;
 	private StringProperty ablaufDatum;
-	private IntegerProperty preis;
+	private DoubleProperty preis;
 	private StringProperty kundennummer;
 	private StringProperty lieferant;
 
 	public Artikel(String barcode, String bezeichnung, int stueckzahl, String datum,
-			String ablaufDatum, int preis, String kundennummer, String lieferant) {
+			String ablaufDatum, double preis, String kundennummer, String lieferant) {
 		this.barcode = new SimpleStringProperty(barcode);
 		this.bezeichnung = new SimpleStringProperty(bezeichnung);
 		this.stueckzahl = new SimpleIntegerProperty(stueckzahl);
 		this.datum = new SimpleStringProperty(datum);
 		this.ablaufDatum = new SimpleStringProperty(ablaufDatum);
-		this.preis = new SimpleIntegerProperty(preis);
+		this.preis = new SimpleDoubleProperty(preis);
 		this.kundennummer = new SimpleStringProperty(kundennummer);
 		this.lieferant = new SimpleStringProperty(lieferant);
 	}
@@ -69,7 +71,7 @@ public class Artikel {
 		return ablaufDatum.get();
 	}
 
-	public int getPreis() {
+	public double getPreis() {
 		return preis.get();
 	}
 
@@ -89,8 +91,8 @@ public class Artikel {
 		this.ablaufDatum.set(ablaufDatum);
 	}
 	
-	public void setPreis(int preis) {
-		this.preis.set(preis);
+	public void setPreis(double d) {
+		this.preis.set(d);
 	}
 	
 	public void setKundennummer(String kundennummer) {
@@ -109,7 +111,7 @@ public class Artikel {
 		return ablaufDatum;
 	}
 	
-	public IntegerProperty preisProperty() {
+	public DoubleProperty preisProperty() {
 		return preis;
 	}
 	
