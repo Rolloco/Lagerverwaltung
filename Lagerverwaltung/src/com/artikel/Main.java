@@ -29,10 +29,10 @@ public class Main extends Application {
 		primaryStage.setTitle("Lagerverwaltung");
 		final Label label = new Label("Lagerverwaltung");
 		label.setFont(new Font("Arial", 20));
-		primaryStage.getIcons().add(new Image(this.getClass().getResource("icons/main_icon.png").toString()));
+		primaryStage.getIcons().add(new Image(this.getClass().getResource("/com/icons/main_icon.png").toString()));
 
 		try {
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("Table.fxml"));
+			FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/artikel/Table.fxml"));
 			TabPane page = (TabPane) loader.load();
 
 			hb.getChildren().addAll(page);
@@ -45,7 +45,7 @@ public class Main extends Application {
 			Scene scene = new Scene(new Group());
 			((Group) scene.getRoot()).getChildren().addAll(vbox);
 			
-			scene.getStylesheets().add("test/style.css");
+			scene.getStylesheets().add("/com/artikel/style.css");
 			
 			primaryStage.setScene(scene);
 			primaryStage.show();

@@ -7,7 +7,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="test.TableController">
+<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.artikel.TableController">
    <tabs>
       <Tab text="Artikel">
          <content>
@@ -53,7 +53,7 @@
          <graphic>
             <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@icons/article.png" />
+                  <Image url="@/com/icons/article.png" />
                </image>
             </ImageView>
          </graphic>
@@ -92,7 +92,7 @@
          <graphic>
             <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@icons/supplier.png" />
+                  <Image url="@/com/icons/supplier.png" />
                </image>
             </ImageView>
          </graphic>
